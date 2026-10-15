@@ -39,7 +39,7 @@
         "Azure IoT Edge"
     ],
     "node-red": {
-        "version": ">=4.1.14 <5",
+        "version": ">=4.1.13 <5",
         "nodes": {
             "Azure IoT Edge Module Client": "azure-iot-edge-module-client.js",
             "Azure IoT Edge Device Client": "azure-iot-edge-device-client.js"

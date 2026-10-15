@@ -17,7 +17,7 @@ jobs:
       matrix:
         include:
           - node: '22.16.0'
-            node-red: '4.1.14'
+            node-red: '4.1.13'
           - node: '22'
             node-red: '4.1.16'
     steps:

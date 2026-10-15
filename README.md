@@ -9,7 +9,7 @@ This package uses the active Azure IoT Node.js device SDK and preserves the node
 ## Requirements
 
 - Node.js 22.16.0 or newer within 22.x
-- Node-RED 4.1.14 or newer within 4.x (current offline qualification uses 4.1.16)
+- Node-RED 4.1.13 or newer within 4.x (offline qualification covers 4.1.13 and 4.1.16)
 - Linux containers for Azure IoT Edge module operation
 - MQTT transport
 
