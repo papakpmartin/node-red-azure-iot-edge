@@ -4,11 +4,11 @@
     "author": {
         "name": "Ken Martin",
         "email": "kmartin@hydraflexinc.com",
-        "url": "https://github.com/kpm-at-hfi/node-red-contrib-azure-iot-edge-kpm"
+        "url": "https://github.com/papakpmartin/node-red-contrib-azure-iot-edge-kpm"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/kpm-at-hfi/node-red-contrib-azure-iot-edge-kpm"
+        "url": "git+https://github.com/papakpmartin/node-red-contrib-azure-iot-edge-kpm.git"
     },
     "license": "MIT",
     "description": "Module to connect to and interact with Azure IoT Edge using Node-Red",
@@ -25,7 +25,9 @@
     "scripts": {
         "lint": "node scripts/lint.js",
         "test": "node --test --test-concurrency=1 test/*.test.js",
-        "test:package": "node test/package-smoke.js"
+        "test:package": "node test/package-smoke.js",
+        "pack:release": "node scripts/pack-release.js",
+        "release:check": "node scripts/release-check.js"
     },
     "devDependencies": {
         "node-red": "4.1.16",

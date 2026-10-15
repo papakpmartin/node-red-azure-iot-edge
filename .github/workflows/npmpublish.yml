@@ -2,54 +2,85 @@ name: Node.js Package
 
 on:
   release:
-    types: [created]
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing tag to qualify without publishing (for example v1.0.0-rc.1)'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+
+env:
+  RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - run: npm install --global npm@10.9.4
+          node-version: '22.16.0'
+      - run: npm install --global npm@11.12.1
+      - name: Verify source version and npm availability
+        run: npm run release:check
+        env:
+          CHECK_NPM_VERSION: '1'
       - run: npm ci
       - run: npm run lint
       - run: npm test
-      - run: npm run test:package
-      - name: Pack tested artifact
-        run: npm pack --ignore-scripts
+      - run: npm audit --omit=dev --audit-level=high
+      - name: Pack candidate once
+        run: npm run pack:release
+      - name: Verify packed version and checksum
+        run: npm run release:check -- dist
+      - name: Qualify the exact packed artifact
+        run: npm run test:package -- "dist/$(node -p "require('./package.json').name + '-' + require('./package.json').version + '.tgz'")"
+      - name: Exercise publication without publishing
+        run: npm publish ./dist/*.tgz --dry-run --ignore-scripts --tag next
       - uses: actions/upload-artifact@v4
         with:
           name: npm-package
-          path: node-red-contrib-azure-iot-edge-kpm-*.tgz
+          path: dist/*
           if-no-files-found: error
 
   publish-npm:
+    if: github.event_name == 'release'
     needs: build
     runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.RELEASE_TAG }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: '22.16.0'
           registry-url: https://registry.npmjs.org/
-      - run: npm install --global npm@10.9.4
+      - run: npm install --global npm@11.12.1
       - uses: actions/download-artifact@v4
         with:
           name: npm-package
           path: dist
-      - name: Verify release version
-        run: |
-          echo "Package version: $(node -p "require('./package.json').version")"
-          echo "Release tag: ${GITHUB_REF_NAME}"
-          # Skip strict version match to allow tagging flexibility
-      - name: Publish package
-        run: |
-          if node -e "process.exit(require('./package.json').version.includes('-') ? 0 : 1)"; then
-            npm publish ./dist/*.tgz --tag next
-          else
-            npm publish ./dist/*.tgz
-          fi
+      - name: Verify exact artifact and release identity
+        id: release
+        run: npm run release:check -- dist
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          CHECK_NPM_VERSION: '1'
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+      - name: Publish tested artifact using npm trusted publishing
+        run: npm publish "./dist/$FILENAME" --ignore-scripts --tag "$DIST_TAG"
+        env:
+          FILENAME: ${{ steps.release.outputs.filename }}
+          DIST_TAG: ${{ steps.release.outputs.dist_tag }}
