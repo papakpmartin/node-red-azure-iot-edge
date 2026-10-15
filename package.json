@@ -12,7 +12,7 @@
     },
     "license": "MIT",
     "description": "Module to connect to and interact with Azure IoT Edge using Node-Red",
-    "packageManager": "npm@10.9.4",
+    "packageManager": "npm@11.12.1",
     "bundleDependencies": [],
     "dependencies": {
         "azure-iot-device": "1.18.4",
@@ -20,7 +20,7 @@
     },
     "deprecated": false,
     "engines": {
-        "node": ">=22 <26"
+        "node": ">=22.16.0 <23"
     },
     "scripts": {
         "lint": "node --check azure-iot-edge-module-client.js && node --check azure-iot-edge-device-client.js",
@@ -37,7 +37,7 @@
         "Azure IoT Edge"
     ],
     "node-red": {
-        "version": ">=4 <5",
+        "version": ">=4.1.14 <5",
         "nodes": {
             "Azure IoT Edge Module Client": "azure-iot-edge-module-client.js",
             "Azure IoT Edge Device Client": "azure-iot-edge-device-client.js"
