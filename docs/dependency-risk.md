@@ -2,7 +2,8 @@
 
 Assessment date: October 15, 2026.
 
-Candidate: `1.0.0-rc.1`, Node.js 22, Node-RED 4.1.16, `azure-iot-device@1.18.4`,
+Candidate: `1.0.0-rc.2` (unchanged resolved dependencies from rc.1), Node.js 22,
+Node-RED 4.1.13/4.1.16 qualification, `azure-iot-device@1.18.4`,
 and `azure-iot-device-mqtt@1.16.4`.
 
 `npm audit --omit=dev` reports **zero high/critical** and five moderate affected-package

@@ -1,31 +1,37 @@
 # Candidate validation and publishing
 
-## Test 1.0.0-rc.1 without npm publication
+## Test 1.0.0-rc.2 without npm publication
 
-Use Node 22.16.0 or a newer supported 22.x patch and Node-RED 4.1.14 or newer
+Use Node 22.16.0 or a newer supported 22.x patch and Node-RED 4.1.13 or newer
 within 4.x. Prefer current security patches in actual deployments. Node 24/25
 and Node-RED 5 are not supported by this candidate.
+
+The field deployment uses Node-RED 4.1.13 and Node 22.23.2 on Linux ARM32.
+rc.1 incorrectly excluded that Node-RED patch and was rejected before any nodes
+could register. rc.2 corrects the gate without runtime-code changes. Record real
+deployment versions before changing support metadata; a newer test dependency
+alone is not a reason to exclude a field-used patch.
 
 1. Preserve the known-good beta.3 tarball, application lockfile, container image
    digest, flows, encrypted credentials/settings secret, certificate references,
    environment, and Edge deployment manifest. Keep secrets outside this repo.
 2. Verify the tarball against its `.sha256` file (macOS: `shasum -a 256 -c ...`;
    Linux: `sha256sum -c ...`), running from `dist/`.
-3. Copy `dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.1.tgz` into the
+3. Copy `dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz` into the
    application's `packages/` directory. Change the existing dependency to:
 
    ```json
-   "node-red-contrib-azure-iot-edge-kpm": "file:packages/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.1.tgz"
+    "node-red-contrib-azure-iot-edge-kpm": "file:packages/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz"
    ```
 
 4. Run the application's normal dependency/lockfile update and immutable image
    build. Keep its resolved lockfile and image digest; this library's lockfile
    does not constrain the application's installation.
-5. Fully restart Node-RED/the container. Confirm the installed version is rc.1,
+5. Fully restart Node-RED/the container. Confirm the installed version is rc.2,
    all expected nodes load, and there are no duplicate node-set warnings.
-6. Do not operate beta.3 and rc.1 concurrently under the same IoT identity.
+6. Do not operate beta.3 and rc.2 concurrently under the same IoT identity.
 
-The rc.1 method contract is unchanged from beta.3: preserve `msg.requestId`,
+The rc.2 method contract is unchanged from beta.3/rc.1: preserve `msg.requestId`,
 return an integer `msg.status` from 100 through 599 and a native JSON payload,
 and respond within 25 seconds. Set cloud caller timeouts to at least 30 seconds.
 
@@ -71,19 +77,21 @@ npm ci
 npm run lint
 npm test
 npm audit --omit=dev --audit-level=high
-RELEASE_TAG=v1.0.0-rc.1 CHECK_NPM_VERSION=1 npm run release:check
+RELEASE_TAG=v1.0.0-rc.2 CHECK_NPM_VERSION=1 npm run release:check
 npm run pack:release
-RELEASE_TAG=v1.0.0-rc.1 npm run release:check -- dist
-npm run test:package -- dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.1.tgz
-npm publish ./dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.1.tgz --dry-run --ignore-scripts --tag next
+RELEASE_TAG=v1.0.0-rc.2 npm run release:check -- dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz
+npm run test:package -- dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz
+npm publish ./dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz --dry-run --ignore-scripts --tag next
 ```
 
-`dist/` must contain exactly one release tarball when checked. Preserve old
-candidates elsewhere rather than mixing them in this directory. `test:package`
+The directory form (`release:check -- dist`) requires exactly one release tarball;
+GitHub uses a fresh output directory and this strict check. When preserving older
+local candidates alongside the new one, pass the exact archive path as above.
+`test:package`
 installs the supplied tarball with a fresh consumer dependency resolution,
 discovers/deploys all seven types in real Node-RED using fake Azure clients, and
 audits the consumer's production tree. It requires registry access and OpenSSL.
-Use `NODE_RED_TEST_VERSION=4.1.14` to repeat the packed test at the supported
+Use `NODE_RED_TEST_VERSION=4.1.13` to repeat the packed test at the supported
 Node-RED minimum. It is not a live Azure test.
 
 ## GitHub/npm setup (maintainer action)
@@ -95,7 +103,7 @@ Node-RED minimum. It is not a live Azure test.
    publishers must complete their first publish within npm's validation window.
 2. Configure the GitHub `npm` environment with required reviewer protection and
    release-tag restrictions. Protect release tags and review source before tagging.
-3. Deliberately create/push `v1.0.0-rc.1` only after local/live qualification is
+3. Deliberately create/push `v1.0.0-rc.2` only after local/live qualification is
    acceptable. Use the manual **Node.js Package** workflow with that existing tag
    to exercise the GitHub build/qualification/dry-run path **without publishing**.
 4. Only when authorized, publish a GitHub release for that exact tag, marked

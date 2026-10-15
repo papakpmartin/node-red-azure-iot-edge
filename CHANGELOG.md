@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.0-rc.2
+
+- Restore compatibility with the deployed Node-RED 4.1.13 runtime by lowering the
+  declared minimum from 4.1.14 to 4.1.13. The rc.1 gate caused Node-RED to skip
+  the package entirely, reporting missing module node types.
+- Add Node-RED 4.1.13 packed-install qualification to CI and update installation
+  guidance. All seven types and the bundled method round-trip pass on 4.1.13.
+- No runtime JavaScript or resolved dependency changes from rc.1. Existing flows
+  need no node-type or wiring edits; install the new tarball and restart.
+
 ## 1.0.0-rc.1
 
 - Contain SDK authentication-provider renewal failures through the transport
