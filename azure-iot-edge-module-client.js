@@ -4,6 +4,7 @@ module.exports = function (RED) {
     const { randomUUID } = require('node:crypto');
     const { Message, ModuleClient } = require('azure-iot-device');
     const { Mqtt } = require('azure-iot-device-mqtt');
+    const supervisedMqtt = require('./lib/supervised-mqtt');
 
     const METHOD_TIMEOUT_MS = 25000;
     const MAX_PENDING_METHODS = 100;
@@ -192,8 +193,22 @@ module.exports = function (RED) {
 
     ModuleClientOwner.prototype._connect = async function (generation) {
         let client;
+        let rejectAuthentication;
+        const authenticationFailure = new Promise((resolve, reject) => {
+            rejectAuthentication = reject;
+        });
+        authenticationFailure.catch(() => {});
         try {
-            client = await this._createClient();
+            client = await this._createClient((error) => {
+                if (!this._isCurrentAttempt(generation)) {
+                    return;
+                }
+                rejectAuthentication(error);
+                if (this.client === client && this.activeGeneration === generation) {
+                    this._reportError('Module authentication renewal failed', error);
+                    this._recoverClient(client, generation, error);
+                }
+            });
             if (!client || typeof client.open !== 'function') {
                 throw new TypeError('ModuleClient.fromEnvironment did not return a client');
             }
@@ -204,7 +219,10 @@ module.exports = function (RED) {
 
             this.connectingClient = client;
             this._attachClientListeners(client, generation);
-            await callbackOperation((done) => client.open(done));
+            await Promise.race([
+                callbackOperation((done) => client.open(done)),
+                authenticationFailure
+            ]);
 
             if (!this._isCurrentAttempt(generation)) {
                 await this._closeSdkClient(client);
@@ -241,12 +259,13 @@ module.exports = function (RED) {
         }
     };
 
-    ModuleClientOwner.prototype._createClient = function () {
+    ModuleClientOwner.prototype._createClient = function (onAuthenticationError) {
         const mode = process.env.EdgeHubConnectionString || process.env.IotHubConnectionString
             ? 'environment connection string'
             : 'IoT Edge workload identity';
         this.node.log('Creating Module Client using ' + mode);
-        return callbackOperation((done) => ModuleClient.fromEnvironment(Mqtt, done));
+        const Transport = supervisedMqtt(Mqtt, onAuthenticationError);
+        return callbackOperation((done) => ModuleClient.fromEnvironment(Transport, done));
     };
 
     ModuleClientOwner.prototype._isCurrentAttempt = function (generation) {
