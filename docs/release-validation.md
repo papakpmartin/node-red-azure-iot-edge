@@ -75,7 +75,7 @@ RELEASE_TAG=v1.0.0-rc.1 CHECK_NPM_VERSION=1 npm run release:check
 npm run pack:release
 RELEASE_TAG=v1.0.0-rc.1 npm run release:check -- dist
 npm run test:package -- dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.1.tgz
-npm publish dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.1.tgz --dry-run --ignore-scripts --tag next
+npm publish ./dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.1.tgz --dry-run --ignore-scripts --tag next
 ```
 
 `dist/` must contain exactly one release tarball when checked. Preserve old
