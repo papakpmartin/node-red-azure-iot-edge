@@ -15,7 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['22.16.0', '22']
+        include:
+          - node: '22.16.0'
+            node-red: '4.1.14'
+          - node: '22'
+            node-red: '4.1.16'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,3 +31,5 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run test:package
+        env:
+          NODE_RED_TEST_VERSION: ${{ matrix.node-red }}
