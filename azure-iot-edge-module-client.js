@@ -146,6 +146,7 @@ module.exports = function (RED) {
         this.activeGeneration = 0;
         this.readyWaiters = new Set();
         this.inputConsumers = new Set();
+        this.outputConsumers = new Set();
         this.twinConsumers = new Set();
         this.methodEntries = new Map();
         this.pendingMethods = new Map();
@@ -386,7 +387,7 @@ module.exports = function (RED) {
 
     ModuleClientOwner.prototype._setConsumerStatus = function (status) {
         setStatus(this.node, status);
-        for (const consumer of this.inputConsumers) {
+        for (const consumer of [...this.inputConsumers, ...this.outputConsumers]) {
             if (!consumer.closed) {
                 setStatus(consumer.node, status);
             }
@@ -1043,6 +1044,9 @@ module.exports = function (RED) {
         const consumer = { node, closed: false };
         registerClose(node, () => {
             consumer.closed = true;
+            if (owner) {
+                owner.outputConsumers.delete(consumer);
+            }
             setStatus(node, statusEnum.disconnected);
         });
 
@@ -1062,6 +1066,10 @@ module.exports = function (RED) {
                 finishInput(node, msg, done, operationError('Could not send module output', error));
             });
         });
+        if (owner) {
+            owner.outputConsumers.add(consumer);
+            setStatus(node, owner.state === 'ready' ? statusEnum.connected : statusEnum.disconnected);
+        }
     }
 
     function createModuleMethod(config) {
