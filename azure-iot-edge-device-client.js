@@ -94,6 +94,7 @@ module.exports = function(RED) {
         let retryWake = null;
         let closePromise = null;
         let closing = false;
+        let unsafeCloseError = null;
         let expiryWarningIssued = false;
         let initialDesiredSeen = false;
         const twinChildren = new Set();
@@ -414,9 +415,10 @@ module.exports = function(RED) {
                         try {
                             await closeClient(candidate);
                         } catch (closeError) {
-                            if (!closing) {
-                                node.warn(asError(closeError).message);
-                            }
+                            unsafeCloseError = new Error('Device client could not close safely; restart Node-RED before reconnecting', { cause: closeError });
+                            setOwnerState('error', statuses.error);
+                            setChildrenStatus(statuses.error);
+                            throw unsafeCloseError;
                         }
                     }
                     if (closing || error.code === 'DEVICE_CLIENT_CLOSED') {
@@ -445,6 +447,9 @@ module.exports = function(RED) {
         }
 
         function ensureConnected() {
+            if (unsafeCloseError) {
+                return Promise.reject(unsafeCloseError);
+            }
             if (closing) {
                 return Promise.reject(closedError());
             }
@@ -588,9 +593,10 @@ module.exports = function(RED) {
             const recovery = closeClient(disconnectedClient).then(
                 () => connectLoop(1),
                 (error) => {
+                    unsafeCloseError = new Error('Device client could not close safely; restart Node-RED before reconnecting', { cause: error });
                     setOwnerState('error', statuses.error);
                     setChildrenStatus(statuses.error);
-                    throw new Error('Device client could not close safely; restart Node-RED before reconnecting', { cause: error });
+                    throw unsafeCloseError;
                 }
             );
             startPromise = recovery;

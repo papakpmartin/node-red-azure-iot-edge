@@ -160,12 +160,13 @@ module.exports = function (RED) {
         this.closedClients = new WeakSet();
         this.unsettledClientCloses = new Set();
         this.closePromise = null;
+        this.unsafeClose = false;
         this.lastErrorText = '';
         this.lastErrorTime = 0;
     }
 
     ModuleClientOwner.prototype.start = function () {
-        if (this.state === 'closing' || this.state === 'closed' || this.client || this.connectPromise || this.retryTimer) {
+        if (this.unsafeClose || this.state === 'closing' || this.state === 'closed' || this.client || this.connectPromise || this.retryTimer) {
             return;
         }
 
@@ -178,7 +179,9 @@ module.exports = function (RED) {
         attempt.catch((error) => {
             if (this.state !== 'closing' && this.state !== 'closed' && generation === this.generation) {
                 this._reportError('Module client connection failed', error);
-                this._scheduleRetry();
+                if (!this.unsafeClose) {
+                    this._scheduleRetry();
+                }
             }
         }).finally(() => {
             if (this.connectPromise === attempt) {
@@ -224,8 +227,15 @@ module.exports = function (RED) {
         } catch (error) {
             this.connectingClient = null;
             if (client) {
-                await this._closeSdkClient(client).catch(() => {});
-                this._detachClientListeners(client);
+                try {
+                    await this._closeSdkClient(client);
+                } catch (closeError) {
+                    this.unsafeClose = true;
+                    if (this.state !== 'closing' && this.state !== 'closed') {
+                        this.state = 'error';
+                    }
+                    throw operationError('Module client could not close safely; restart Node-RED before reconnecting', closeError);
+                }
             }
             throw error;
         }
@@ -244,7 +254,7 @@ module.exports = function (RED) {
     };
 
     ModuleClientOwner.prototype._scheduleRetry = function () {
-        if (this.state === 'closing' || this.state === 'closed' || this.retryTimer) {
+        if (this.unsafeClose || this.state === 'closing' || this.state === 'closed' || this.retryTimer) {
             return;
         }
         this.state = 'recovering';
@@ -308,7 +318,6 @@ module.exports = function (RED) {
         }
         if (!keepErrorListener) {
             this.clientListeners.delete(client);
-        } else {
         }
     };
 
@@ -335,6 +344,7 @@ module.exports = function (RED) {
                 }
             },
             (error) => {
+                this.unsafeClose = true;
                 if (this.state !== 'closing' && this.state !== 'closed') {
                     this.state = 'error';
                     this._reportError('Module client could not close safely; restart Node-RED before reconnecting', error);
@@ -374,6 +384,9 @@ module.exports = function (RED) {
     };
 
     ModuleClientOwner.prototype.waitForClient = function () {
+        if (this.unsafeClose) {
+            return Promise.reject(new Error('Module client could not close safely; restart Node-RED before reconnecting'));
+        }
         if (this.client && this.state === 'ready') {
             return Promise.resolve(this.client);
         }
@@ -891,7 +904,7 @@ module.exports = function (RED) {
             work.push(this.connectPromise);
         }
         for (const client of clients) {
-            work.push(this._closeSdkClient(client).finally(() => this._detachClientListeners(client)));
+            work.push(this._closeSdkClient(client));
         }
 
         this.closePromise = withTimeout(
@@ -904,9 +917,6 @@ module.exports = function (RED) {
                 throw failure.reason;
             }
         }).finally(() => {
-            for (const client of clients) {
-                this._detachClientListeners(client);
-            }
             this.state = 'closed';
             this._releaseActiveOwner();
         });
