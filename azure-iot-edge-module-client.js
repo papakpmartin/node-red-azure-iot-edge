@@ -169,7 +169,7 @@ module.exports = function (RED) {
     }
 
     ModuleClientOwner.prototype.start = function () {
-        if (this.unsafeClose || this.state === 'closing' || this.state === 'closed' || this.client || this.connectPromise || this.retryTimer) {
+        if (this.unsafeClose || this.unsettledClientCloses.size > 0 || this.state === 'closing' || this.state === 'closed' || this.client || this.connectPromise || this.retryTimer) {
             return;
         }
 
