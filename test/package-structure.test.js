@@ -11,7 +11,7 @@ const manifest = require('../package.json');
 test('declares the initial runtime support scope', () => {
     assert.equal(manifest.engines.node, '>=22 <26');
     assert.equal(manifest['node-red'].version, '>=4 <5');
-    assert.equal(manifest.devDependencies['node-red'], '4.1.14');
+    assert.equal(manifest.devDependencies['node-red'], '4.1.16');
 });
 
 test('declares each Node-RED entry point exactly once', () => {

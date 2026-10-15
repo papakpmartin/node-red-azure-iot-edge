@@ -1,12 +1,15 @@
 # Dependency Risk Record
 
-Assessment date: September 8, 2026.
+Assessment date: October 15, 2026.
 
-Candidate: `1.0.0-beta.2`, Node.js 22, Node-RED 4, `azure-iot-device@1.18.4`,
+Candidate: next 1.0.0 qualification prerelease, Node.js 22, Node-RED 4.1.16, `azure-iot-device@1.18.4`,
 and `azure-iot-device-mqtt@1.16.4`.
 
-`npm audit --omit=dev` reports no critical production vulnerability after the
-lockfile resolves `lodash@4.18.1`. It still reports moderate findings inherited
+`npm audit --omit=dev` reports **zero high/critical** and five moderate affected-package
+entries after refreshing compatible transitive resolutions, including
+`brace-expansion@1.1.21` and `lodash@4.18.1`. The prior production
+`brace-expansion@1.1.18` denial-of-service findings are fixed without an override
+or Azure SDK downgrade. The remaining moderate findings are inherited
 through the latest active Azure IoT Node.js SDK:
 
 - `azure-iot-device@1.18.4` pins `@azure/storage-blob@12.8.0`.
@@ -24,5 +27,16 @@ Release approval must explicitly accept this residual risk or wait for an Azure
 SDK release with updated transitive dependencies. Re-run the production audit at
 every release and remove this exception when an upstream-compatible fix exists.
 
-Development-only advisories from Node-RED's test dependencies are not shipped in
-the npm package, but still require routine review because CI executes that code.
+The full development audit reports nine moderate and 17 high affected-package
+entries (zero critical), primarily through Node-RED 4.1.16's bundled npm and its
+dependency chain. Moving to Node-RED 5 or forcing transitive major overrides is
+not an approved fix in this Node-RED 4 qualification release. These development
+dependencies are not shipped by this package, but CI executes them. The actual
+deployment's Node-RED installation needs its own audit and restricted editor/
+palette-management access; installing this package does not patch that runtime.
+
+The library lockfile does not constrain consumer resolution. Qualification must
+also install the exact tarball in a fresh directory and audit that production
+tree. Immutable deployment builds should preserve their application lockfile.
+Audit counts are observations, not a claim that every advisory is reachable or
+that the remaining risks are accepted for stable release.

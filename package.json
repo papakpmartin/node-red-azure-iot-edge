@@ -28,7 +28,7 @@
         "test:package": "node test/package-smoke.js"
     },
     "devDependencies": {
-        "node-red": "4.1.14",
+        "node-red": "4.1.16",
         "node-red-node-test-helper": "0.3.6"
     },
     "keywords": [
