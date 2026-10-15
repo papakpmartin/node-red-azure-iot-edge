@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.0.0-rc.1
+
+- Contain SDK authentication-provider renewal failures through the transport
+  constructor hook while retaining Azure's environment factory, signing, gateway,
+  and trust-bundle behavior. Close before recreating a failed client.
+- Stop startup/recovery after an uncertain client close; retain error protection
+  and reject new input until Node-RED is restarted. Prevent queued sends from
+  bypassing an in-progress recovery close.
+- Retry transient passive Device Twin initialization failures with bounded backoff.
+- Separate direct-method response capacity from telemetry and retain requests
+  rejected by response admission until they complete or expire.
+- Keep Module Output status synchronized with connection lifecycle changes.
+- Refresh compatible dependencies, including fixed production brace-expansion;
+  qualify with Node-RED 4.1.16 and retain tested 4.1.14 compatibility.
+- Align support with Node.js >=22.16.0 <23 and Node-RED >=4.1.14 <5.
+- Add exact-tarball installation/discovery, editor syntax, fault-path, and release
+  identity/checksum tests. Pin npm 11.21.1 and prepare OIDC trusted publishing.
+
+This is a local qualification candidate, not an assertion of live Azure/Edge
+acceptance. See `docs/release-validation.md` for installation, fault/soak checks,
+rollback, residual dependency risks, and npm publishing setup.
+
 ## 1.0.0-beta.3
 
 - Restore one Node-RED manifest entry per runtime/editor pair so the combined

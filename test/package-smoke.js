@@ -35,7 +35,7 @@ try {
         'lib/supervised-mqtt.js',
         'icons/iot-edge-module-logo.svg',
         'docs/dependency-risk.md',
-        'docs/modernization-plan.md',
+        'docs/release-validation.md',
         'examples/example.json',
         'package.json'
     ];
@@ -44,6 +44,7 @@ try {
         assert.ok(files.has(file), `${file} is missing from the npm package`);
     }
     assert.ok(!files.has('azure-iot-edge-config.js'), 'obsolete config runtime was packaged');
+    assert.ok(!files.has('docs/modernization-plan.md'), 'historical internal proposal was packaged');
     assert.ok(!Array.from(files).some((file) => file.startsWith('test/')), 'test files were packaged');
     assert.ok(!Array.from(files).some((file) => file.startsWith('todo/')), 'internal todo files were packaged');
     assert.ok(!Array.from(files).some((file) => file.startsWith('scripts/') || file.startsWith('dist/')), 'release tooling or output was packaged');

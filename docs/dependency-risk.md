@@ -2,7 +2,7 @@
 
 Assessment date: October 15, 2026.
 
-Candidate: next 1.0.0 qualification prerelease, Node.js 22, Node-RED 4.1.16, `azure-iot-device@1.18.4`,
+Candidate: `1.0.0-rc.1`, Node.js 22, Node-RED 4.1.16, `azure-iot-device@1.18.4`,
 and `azure-iot-device-mqtt@1.16.4`.
 
 `npm audit --omit=dev` reports **zero high/critical** and five moderate affected-package
@@ -37,6 +37,8 @@ palette-management access; installing this package does not patch that runtime.
 
 The library lockfile does not constrain consumer resolution. Qualification must
 also install the exact tarball in a fresh directory and audit that production
-tree. Immutable deployment builds should preserve their application lockfile.
+tree. The fresh-consumer audit reports six moderate affected-package entries
+(the same Azure chain plus this package as an affected ancestor), zero high,
+and zero critical. Immutable deployment builds should preserve their application lockfile.
 Audit counts are observations, not a claim that every advisory is reachable or
 that the remaining risks are accepted for stable release.

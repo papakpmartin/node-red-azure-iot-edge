@@ -63,6 +63,6 @@
 </script>
 
 <script type="text/x-red" data-help-name="device-twin">
-    <p>Azure IoT Edge Device Twin receives desired properties changes and sends reported properties to Azure IoT Edge using Node-RED. Node-RED needs to run as a module in Azure IoT Edge for this node to work.</p>
+    <p>Device Twin receives desired-property changes and sends reported properties directly to IoT Hub using the configured X.509 device identity. Node-RED does not need to run as an IoT Edge module for this node to work.</p>
     <p>The input of the node sends reported properties to the device twin and the output represents changes to desired properties.</p>
 </script>

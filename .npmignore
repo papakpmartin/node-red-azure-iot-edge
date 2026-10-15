@@ -7,3 +7,5 @@ test/
 todo/
 scripts/
 dist/
+docs/modernization-plan.md
+docs/qualification-*.md

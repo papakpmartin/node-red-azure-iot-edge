@@ -1,54 +1,28 @@
-# Refactor Follow-ups
+# Release Follow-ups
 
-The duplicate Node-RED registration warning was introduced after the working
-`1.0.0-beta.2` artifact by declaring the combined module runtime once for each
-node type. The manifest has been restored to one entry per JS/HTML pair and is
-covered by source and packed-artifact regression tests.
+The 1.0.0-rc.1 work addresses the previously listed startup-close, passive twin
+retry, response-admission, output-status, package discovery, and editor help gaps.
+It also contains authentication-provider errors missed by the installed SDK.
+Source/tarball Node-RED entry-point duplication checks remain in place.
 
-The current runtime and editor files are otherwise byte-for-byte equivalent to
-the local `1.0.0-beta.2` package. The items below are separate release and
-reliability work, not causes of the duplicate-registration warning.
+## Still Required Before Stable Release
 
-## Release Blockers
+- Validate the exact rc.1 artifact in the real deployment, including workload
+  failure at renewal, X.509 twins, network/Edge Hub recovery, and redeploys.
+- Record 72-hour soak and seven-day canary results or an explicit alternate gate.
+- Rehearse rollback with the beta.3 artifact/image and matching flow/config backup.
+- Explicitly accept residual dependency risks in `docs/dependency-risk.md`.
+- Configure npm trusted publishing and the protected GitHub `npm` environment;
+  a dry-run does not prove real OIDC permissions.
+- Run the GitHub manual qualification workflow against a deliberately created
+  release tag before authorizing publication. No tag/release/push is implicit in
+  local qualification.
 
-- Restore strict release tag, checkout manifest, and packed-artifact version
-  equality checks in `.github/workflows/npmpublish.yml`. Also fail before
-  publication when the selected version already exists in npm.
-- Reconcile the supported Node.js range. The manifest advertises `>=22 <26`,
-  but CI, `.nvmrc`, the README, and the modernization plan qualify Node 22 only.
-  Either restore `<23` or qualify every advertised major.
-- Refresh the dependency lock and production vulnerability assessment. The
-  current production tree includes a high-severity `brace-expansion` advisory
-  that is not recorded in `docs/dependency-risk.md`; assess reachability and
-  update to a fixed compatible resolution or document an approved exception.
+## Follow-on Qualification
 
-## Runtime Reliability
-
-- Prevent replacement module and device clients after startup `open()` fails
-  unless the failed client is known to have closed. A failed or timed-out close
-  currently permits overlapping identity clients; the module path can also
-  remove the uncertain client's last error listener.
-- Retry transient device `getTwin()` failures for passive Device Twin nodes.
-  The promise becomes retryable, but no retry is scheduled unless another event
-  happens to request the twin.
-- Reserve capacity for direct-method responses or separate them from the shared
-  operation limit. A response can currently be removed from the pending request
-  map and then rejected locally when the general operation pool is full, leaving
-  the cloud caller to time out.
-- Include Module Output nodes in owner connection-status fanout. Their displayed
-  status can remain disconnected after startup or connected through an actual
-  disconnect even though message readiness is handled by the owner.
-
-## Test And Documentation Gaps
-
-- Add startup failure plus failed/hung close tests for both client owners.
-- Add device twin retry, method-response saturation, output status, and device
-  reconnect tests, including exact Node-RED `done()` behavior.
-- Install the packed artifact into an isolated Node-RED user directory in CI and
-  assert successful registry discovery with no duplicate node-set errors.
-- Parse or execute JavaScript embedded in editor HTML as part of linting.
-- Correct Device Twin editor help that says Node-RED must run as an IoT Edge
-  module; this path connects directly to IoT Hub using the configured X.509
-  device identity.
-- Complete live IoT Edge workload, direct X.509 device, reconnect/fault, token
-  renewal, and soak acceptance before a stable release.
+- Node 24 before Node 22 support ends April 30, 2027; Node-RED 5 separately.
+- IoT Edge 1.6 on deployed platforms; Edge 1.5 support ends November 10, 2026.
+- Upstream Azure SDK renewal-error and dependency fixes; remove local transport
+  supervision only after equivalent regression tests pass with a fixed SDK.
+- Operational queue diagnostics and byte/age admission limits as field needs
+  justify them. Package splitting and new authentication modes remain optional.

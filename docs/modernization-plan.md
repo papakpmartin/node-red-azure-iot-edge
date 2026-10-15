@@ -1,6 +1,10 @@
 # Azure IoT Node-RED Modernization Plan
 
-Status: proposed; implementation requires approval.
+Status: historical design proposal from September 8, 2026. Much of this work is
+now implemented. This document is not the current release checklist or proof of
+qualification; see `release-validation.md`, `dependency-risk.md`, the tests, and
+the candidate qualification record. Historical source references below describe
+the original baseline, not the current runtime.
 
 Owner-decided initial runtime scope: Node.js 22.x and Node-RED 4.x only.
 Node.js 24 and Node-RED 5 are separate follow-on work, not release requirements.

@@ -19,6 +19,18 @@ Node.js 24 and Node-RED 5 are not qualified by this release. Azure IoT Edge 1.6 
 
 Install this package in the Node-RED user directory or include it in the immutable application/container build. Back up flows, credentials, settings, certificate references, and the prior image digest before upgrading.
 
+The current local qualification candidate is **1.0.0-rc.1**. To test the generated
+tarball, copy `dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.1.tgz` into your
+Node-RED application's `packages/` directory and replace the beta.3 dependency:
+
+```json
+"node-red-contrib-azure-iot-edge-kpm": "file:packages/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.1.tgz"
+```
+
+Install/rebuild with the application's normal lockfile procedure and fully
+restart Node-RED. This does not require publishing the candidate to npm. See
+[candidate validation and release instructions](docs/release-validation.md).
+
 ![screenshot](/images/screenshot.PNG)
 
 ## Module nodes
