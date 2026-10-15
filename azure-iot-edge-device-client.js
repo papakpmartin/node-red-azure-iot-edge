@@ -90,6 +90,8 @@ module.exports = function(RED) {
         let twinGeneration = 0;
         let startPromise = null;
         let twinPromise = null;
+        let twinRetryTimer = null;
+        let twinRetryAttempt = 0;
         let retryTimer = null;
         let retryWake = null;
         let closePromise = null;
@@ -274,6 +276,10 @@ module.exports = function(RED) {
         }
 
         function detachTwin(keepErrorListener) {
+            if (twinRetryTimer) {
+                clearTimeout(twinRetryTimer);
+                twinRetryTimer = null;
+            }
             if (twin && twinListeners) {
                 twin.removeListener('error', twinListeners.onError);
                 twin.removeListener('properties.desired', twinListeners.onDesired);
@@ -517,6 +523,11 @@ module.exports = function(RED) {
             }
 
             twin = candidateTwin;
+            twinRetryAttempt = 0;
+            if (twinRetryTimer) {
+                clearTimeout(twinRetryTimer);
+                twinRetryTimer = null;
+            }
             twinGeneration = candidateGeneration;
             attachTwin(candidateTwin, candidateGeneration);
             setChildrenStatus(statuses.connected);
@@ -568,6 +579,14 @@ module.exports = function(RED) {
                     if (child.active) {
                         child.node.error(asError(error, 'Unable to load the device twin'));
                     }
+                }
+                if (error.code !== 'DEVICE_CONFIGURATION_ERROR' && !unsafeCloseError && !twinRetryTimer && twinChildren.size > 0) {
+                    const ceiling = Math.min(RETRY_MAX_MS, RETRY_BASE_MS * (2 ** Math.min(twinRetryAttempt++, 10)));
+                    const delay = Math.floor(ceiling * (0.5 + Math.random() * 0.5));
+                    twinRetryTimer = setTimeout(() => {
+                        twinRetryTimer = null;
+                        startTwinForChildren();
+                    }, delay);
                 }
             });
         }
@@ -649,6 +668,10 @@ module.exports = function(RED) {
             return function unregisterTwinChild() {
                 child.active = false;
                 twinChildren.delete(child);
+                if (twinChildren.size === 0 && twinRetryTimer) {
+                    clearTimeout(twinRetryTimer);
+                    twinRetryTimer = null;
+                }
             };
         };
 
