@@ -150,6 +150,7 @@ module.exports = function (RED) {
         this.methodEntries = new Map();
         this.pendingMethods = new Map();
         this.pendingOperations = new Set();
+        this.pendingMethodResponses = new Set();
         this.twin = null;
         this.twinPromise = null;
         this.twinRetryTimer = null;
@@ -674,16 +675,16 @@ module.exports = function (RED) {
         });
     };
 
-    ModuleClientOwner.prototype._trackOperation = function (operation) {
-        if (this.pendingOperations.size >= MAX_PENDING_OPERATIONS) {
+    ModuleClientOwner.prototype._trackOperation = function (operation, pool = this.pendingOperations) {
+        if (pool.size >= MAX_PENDING_OPERATIONS) {
             return Promise.reject(new Error('Module client pending operation limit reached'));
         }
         if (this.state === 'closing' || this.state === 'closed') {
             return Promise.reject(new Error('Module client is closed'));
         }
         const pending = Promise.resolve().then(operation);
-        this.pendingOperations.add(pending);
-        pending.finally(() => this.pendingOperations.delete(pending)).catch(() => {});
+        pool.add(pending);
+        pending.finally(() => pool.delete(pending)).catch(() => {});
         return pending;
     };
 
@@ -827,11 +828,19 @@ module.exports = function (RED) {
         if (pending.child !== consumer || consumer.closed) {
             throw new Error('Module method requestId belongs to a different node instance');
         }
+        // Reserve separate response capacity before consuming the request. If
+        // saturated, retain its timeout and allow a later response attempt.
+        if (this.pendingMethodResponses.size >= MAX_PENDING_METHODS) {
+            throw new Error('Module client pending method response limit reached');
+        }
+        if (this.state === 'closing' || this.state === 'closed') {
+            throw new Error('Module client is closed');
+        }
 
         this.pendingMethods.delete(msg.requestId);
         clearTimeout(pending.timer);
         setStatus(consumer.node, statusEnum.response);
-        await this._trackOperation(() => this._sendMethodResponse(pending.response, msg.status, msg.payload));
+        await this._trackOperation(() => this._sendMethodResponse(pending.response, msg.status, msg.payload), this.pendingMethodResponses);
         if (!consumer.closed && this.state === 'ready') {
             setStatus(consumer.node, statusEnum.connected);
         }
@@ -919,6 +928,7 @@ module.exports = function (RED) {
         this.activeGeneration = 0;
         const work = this._terminatePending(null, 503, { error: 'Module client unavailable' });
         work.push(...this.pendingOperations);
+        work.push(...this.pendingMethodResponses);
         if (this.connectPromise) {
             work.push(this.connectPromise);
         }

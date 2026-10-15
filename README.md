@@ -141,7 +141,7 @@ An IoT Edge host provisioned with X.509 still normally gives modules a workload-
 
 - Each configuration node owns its client and twin; child nodes do not share process-global state.
 - Failed startup and disconnects retry with bounded exponential backoff. Azure SDK operation retries remain enabled.
-- At most 100 pending operations and 100 pending method requests are retained per client. Additional work fails through Node-RED's message completion/error path rather than growing memory without bound.
+- At most 100 pending telemetry/reported-property operations and 100 pending method requests are retained per client. Module method responses have a separate 100-operation pool so telemetry saturation cannot discard a response. Additional work fails through Node-RED's message completion/error path rather than growing memory without bound. If response capacity is exhausted, the request retains its timeout and can be answered again while it remains valid.
 - Closing or redeploying nodes removes only listeners owned by those nodes. Pending direct methods receive an unavailable response where possible.
 - MQTT input settlement is automatic. A successful Module Output callback means Edge Hub accepted the send; it does not guarantee downstream processing or exactly-once delivery.
 - JSON parse, serialization, configuration, and SDK failures are reported to Node-RED Catch nodes where an originating input message exists.
