@@ -12,7 +12,7 @@
     },
     "license": "MIT",
     "description": "Module to connect to and interact with Azure IoT Edge using Node-Red",
-    "packageManager": "npm@11.12.1",
+    "packageManager": "npm@11.21.1",
     "bundleDependencies": [],
     "dependencies": {
         "azure-iot-device": "1.18.4",
