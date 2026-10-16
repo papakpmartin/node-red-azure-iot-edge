@@ -5,6 +5,15 @@
 Candidate: **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4`**.
 The GitHub repository is now `papakpmartin/node-red-azure-iot-edge`.
 
+**Publication status:** the owner published rc.4 to npm on October 16, 2026. Its
+registry tarball was verified byte-for-byte against the qualified local artifact,
+and all six examples passed a clean registry-name installation on Node-RED 4.1.13.
+Both `next` and `latest` currently point to rc.4; stable 1.0.0 is not published.
+For a registry-based test dependency use version `1.0.0-rc.4` instead of the local
+`file:` value below. Do not republish this immutable version. The local packing
+commands below document reproduction/qualification, not authorization to replace
+the preserved release artifact or publish rc.4 again.
+
 **Repository-rename status:** rc.4 packages the final repository/author URLs after
 the GitHub rename. The already-qualified rc.3 tarball and report are preserved
 with their original metadata. Do not relabel or overwrite them; historical
@@ -169,6 +178,9 @@ GitHub username alone is not proof. The scoped package is public and needs no
 paid private-package plan. Its trusted publisher is separate from the old package.
 
 ### First-package bootstrap
+
+**Completed for rc.4.** The scoped package now exists. Proceed to its
+trusted-publisher settings below; the bootstrap explanation is retained for context.
 
 If the scoped package does not yet exist, its npm settings may need a bootstrap
 publication before trusted publishing can be configured. The straightforward

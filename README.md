@@ -44,12 +44,21 @@ Azure IoT Edge 1.6 LTS is recommended. Use current supported security patches
 that your deployment has qualified; compatibility with an older patch is not a
 recommendation to remain on it.
 
-### Local release candidate and scoped package
+### Prerelease installation and scoped package
 
-The current qualification candidate is **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4`**. That does not mean it has
-been published to npm. An unversioned `npm install` may install an older stable
-release. See the [release and validation guide](docs/release-validation.md) for
-candidate status, checksums, packaging, and publication steps.
+The current prerelease is **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4`**,
+published to npm and verified against the qualified tarball. From the relevant
+Node-RED user/application directory, pin it for testing with:
+
+```sh
+npm install --save-exact @papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4
+```
+
+Stable 1.0.0 is not yet published. At prerelease verification both `next` and
+`latest` point to rc.4, so an unversioned install currently selects this prerelease.
+See the [release and validation guide](docs/release-validation.md) for checksums,
+migration, and the remaining stable-release steps. Remove the old unscoped
+dependency first if migrating; do not install both package identities.
 
 rc.4 includes the final repository/author URLs after the GitHub rename to
 `papakpmartin/node-red-azure-iot-edge`. The earlier rc.3 tarball is preserved with

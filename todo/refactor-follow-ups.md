@@ -17,10 +17,12 @@ Source/tarball Node-RED entry-point duplication checks remain in place.
 - Rehearse rollback to the known-good unscoped rc.2 artifact/image and matching
   application manifest, lockfile, and flow/config backup. Do not install both names.
 - Explicitly accept residual dependency risks in `docs/dependency-risk.md`.
-- Confirm ownership of the npm `papakpmartin` scope, handle first-publication
-  bootstrap if necessary, and configure the new package's trusted publisher plus
-  the protected GitHub `npm` environment;
-  a dry-run does not prove real OIDC permissions.
+- The owner completed the rc.4 npm bootstrap publish; its registry tarball and
+  registry-name install are verified in `docs/qualification-1.0.0-rc.4-registry.md`.
+  Configure the new package's trusted publisher and protected GitHub `npm`
+  environment next. Local publication does not prove OIDC permissions.
+- Both `latest` and `next` currently point to rc.4. Decide whether to remove the
+  prerelease `latest` tag before stable publication; do not change tags implicitly.
 - Run the GitHub manual qualification workflow against a deliberately created
   release tag before authorizing publication. No tag/release/push is implicit in
   local qualification.
