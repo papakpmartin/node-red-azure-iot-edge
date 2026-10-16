@@ -46,6 +46,8 @@ recommendation to remain on it.
 
 ### Stable installation and scoped package
 
+**1.0.0 is published to npm with GitHub Actions provenance.**
+
 From the relevant Node-RED user/application directory, install the stable version:
 
 ```sh

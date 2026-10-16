@@ -5,6 +5,13 @@
 Release: **`@papakpmartin/node-red-azure-iot-edge@1.0.0`**.
 The GitHub repository is now `papakpmartin/node-red-azure-iot-edge`.
 
+**Completed release:** 1.0.0 was published through GitHub Actions/OIDC on October
+16, 2026 and verified against the qualified bytes. npm `latest` is 1.0.0;
+`next` remains 1.0.0-rc.4. Registry-name installation, all six examples and npm
+signature/attestation verification passed. See the source record
+`qualification-1.0.0-registry.md` for CI links, digest and provenance evidence.
+Do not rerun publication or rebuild/overwrite the preserved 1.0.0 artifact.
+
 **Release context:** the owner published rc.4 to npm on October 16, 2026. Its
 registry tarball was verified byte-for-byte against the qualified local artifact,
 and all six examples passed a clean registry-name installation on Node-RED 4.1.13.
@@ -191,8 +198,8 @@ paid private-package plan. Its trusted publisher is separate from the old packag
 
 ### First-package bootstrap (historical)
 
-**Completed for rc.4.** The scoped package exists. The owner reports its trusted
-publisher is configured. Stable 1.0.0 uses GitHub OIDC, not another local bootstrap.
+**Completed for rc.4.** The scoped package exists. Its trusted publisher was
+validated by successful GitHub OIDC publication of 1.0.0, not another local bootstrap.
 The explanation below is retained for context; do not repeat the first publish.
 
 If the scoped package does not yet exist, its npm settings may need a bootstrap
@@ -229,6 +236,8 @@ Configure GitHub's `npm` environment with required-reviewer/tag protections. npm
 currently requires a new trusted publisher's first successful publish within two
 days; create it when ready to publish the next candidate, not weeks in advance.
 Dry-runs and `npm whoami` do not validate OIDC publishing access.
+This configuration has now completed its first successful publish; the initial
+validation window is not a requirement to recreate it before every release.
 
 For a version not already published, deliberately create/push its matching
 `v<version>` tag only when authorized. The manual **Node.js Package** workflow

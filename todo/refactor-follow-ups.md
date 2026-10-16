@@ -1,49 +1,49 @@
 # Release Follow-ups
 
-The 1.0.0-rc.1 work addresses the previously listed startup-close, passive twin
-retry, response-admission, output-status, package discovery, and editor help gaps.
-It also contains authentication-provider errors missed by the installed SDK.
-Source/tarball Node-RED entry-point duplication checks remain in place.
+## Stable 1.0.0 Completed — October 16, 2026
 
-## 1.0.0 Release Approval and Remaining Operations
+- `@papakpmartin/node-red-azure-iot-edge@1.0.0` is published under `latest`;
+  `next` remains 1.0.0-rc.4. The old npm package remains available and is not
+  installed alongside the new package in tested migrations.
+- Master CI, manual v1.0.0 qualification and the release/OIDC workflow passed.
+  Registry bytes, provenance, signatures and clean registry-name installation
+  were verified. See `docs/qualification-1.0.0-registry.md`.
+- Runtime/editor/helper bytes and resolved dependencies are unchanged from rc.4.
+  Earlier artifact digests and historical qualification records remain intact.
+- The owner explicitly approved current field testing as the stable gate,
+  accepted the documented dependency risks, and deferred unfinished formal
+  live/fault/soak/canary/rollback checks. These decisions are not newly executed
+  field tests; risk acceptance is specific to 1.0.0.
 
-The owner explicitly approved and authorized 1.0.0 publication on October 16,
-2026, accepting the documented dependency risks and current field validation as
-the release gate, with unfinished formal checks deferred. These decisions do not
-represent newly executed field tests. Runtime/editor/dependency changes are not
-part of stable promotion.
+## Continuing Operations
 
-- The owner renamed GitHub to `papakpmartin/node-red-azure-iot-edge`. Canonical
-  source URLs and npm publisher instructions are updated. rc.4 packages the final
-  metadata separately; rc.3 and its historical qualification record stay unchanged.
-  See `docs/qualification-1.0.0-rc.4.md` for local results and the exact digest.
-- Continue validation of the scoped release and dependency migration in real deployments, including workload
-  failure at renewal, X.509 twins, network/Edge Hub recovery, and redeploys.
-- Record 72-hour soak and seven-day canary results or an explicit alternate gate.
-- Rehearse rollback to the known-good unscoped rc.2 artifact/image and matching
-  application manifest, lockfile, and flow/config backup. Do not install both names.
-- Risk acceptance for 1.0.0 is recorded in `docs/dependency-risk.md`; reassess
-  at each later release and on new advisories/upstream fixes.
-- The owner completed the rc.4 npm bootstrap publish; its registry tarball and
-  registry-name install are verified in `docs/qualification-1.0.0-rc.4-registry.md`.
-  The owner reports the new package's trusted publisher is configured. Validate
-  it through the approved stable workflow, preserving protected `npm` approval.
-  Local prerelease publication does not prove OIDC permissions.
-- Stable publication should move `latest` to 1.0.0 and leave `next` unchanged.
-- Run the GitHub manual qualification workflow against a deliberately created
-  release tag before publication. The owner authorized pushing master, creating
-  v1.0.0, and publishing its stable GitHub release, conditional on passing gates.
-- After a verified scoped publication, manually submit the new identity to the
-  Node-RED Flow Library. Decide on an old-package deprecation notice separately;
-  do not unpublish old versions or create a duplicate-registering wrapper.
+- Continue recommended Linux ARM/Edge deployment validation: workload failure at
+  renewal, X.509 twins/rotation, network/Edge Hub recovery, load and redeploys.
+- Record soak/canary evidence and rehearse rollback with the matching artifact/
+  image, application manifest/lock and flow/config backup. Never run competing
+  clients under the same identity or install both npm package names together.
+- Reassess `docs/dependency-risk.md` on every release/new advisory/upstream fix.
+  Existing production findings are moderate; development dependencies and the
+  separately deployed Node-RED runtime still require maintenance.
+- Submit the new scoped identity manually to the Node-RED Flow Library when the
+  owner authorizes it. Decide on an old-package deprecation notice separately;
+  retain old versions for compatibility/rollback and avoid wrapper packages.
+- Keep the verified trusted publisher, tag restrictions and OIDC/provenance
+  workflow. Do not republish 1.0.0, move its tag, or bypass failing future gates.
 
 ## Follow-on Qualification
 
-- Keep the field-used Node-RED 4.1.13 patch in the packed-install matrix. rc.1
-  excluded it through an unnecessarily raised minimum; rc.2 fixes that gate.
+- Upgrade/qualify maintained GitHub action versions in a separate change: v4
+  checkout/setup/upload/download actions currently warn about deprecated Node 20
+  action runtimes being forced to Node 24. This does not expand this package's
+  supported Node.js application range.
+- Qualify the runner image transition: ubuntu-latest moves to Ubuntu 26 beginning
+  October 19, 2026. Consider a deliberately qualified runner pin if appropriate.
+- Keep field-used Node-RED 4.1.13 in the packed-install/migration matrix. rc.1
+  excluded it through an unnecessary minimum; rc.2 fixed that gate.
 - Node 24 before Node 22 support ends April 30, 2027; Node-RED 5 separately.
 - IoT Edge 1.6 on deployed platforms; Edge 1.5 support ends November 10, 2026.
-- Upstream Azure SDK renewal-error and dependency fixes; remove local transport
+- Track upstream Azure renewal-error/dependency fixes; remove local transport
   supervision only after equivalent regression tests pass with a fixed SDK.
 - Operational queue diagnostics and byte/age admission limits as field needs
   justify them. Package splitting and new authentication modes remain optional.
