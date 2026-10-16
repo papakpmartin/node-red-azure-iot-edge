@@ -77,8 +77,10 @@ test('runtime, editor, and example use the released node types', () => {
     }
 });
 
-test('keeps the released package identity during modernization', () => {
-    assert.equal(manifest.name, 'node-red-contrib-azure-iot-edge-kpm');
+test('declares the public scoped package identity without changing its repository', () => {
+    assert.equal(manifest.name, '@papakpmartin/node-red-azure-iot-edge');
+    assert.equal(manifest.publishConfig.access, 'public');
+    assert.equal(manifest.repository.url, 'git+https://github.com/papakpmartin/node-red-contrib-azure-iot-edge-kpm.git');
     assert.equal(manifest.license, 'MIT');
 });
 

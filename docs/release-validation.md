@@ -1,120 +1,222 @@
-# Candidate validation and publishing
+# Scoped candidate migration, validation and publishing
 
-## Test 1.0.0-rc.2 without npm publication
+## Test the scoped rc.3 without npm publication
+
+Candidate: **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.3`**.
+The GitHub repository remains
+`papakpmartin/node-red-contrib-azure-iot-edge-kpm`; its name was not changed.
 
 Use Node 22.16.0 or a newer supported 22.x patch and Node-RED 4.1.13 or newer
-within 4.x. Prefer current security patches in actual deployments. Node 24/25
-and Node-RED 5 are not supported by this candidate.
+within 4.x. Prefer current qualified security patches. Node 24/25 and Node-RED 5
+are not qualified. The field deployment reports Node-RED 4.1.13 and Node 22.23.2
+on Linux ARM32. rc.1 excluded that Node-RED patch; rc.2 fixed the gate. The scoped
+candidate keeps the same support range and runtime/editor code.
 
-The field deployment uses Node-RED 4.1.13 and Node 22.23.2 on Linux ARM32.
-rc.1 incorrectly excluded that Node-RED patch and was rejected before any nodes
-could register. rc.2 corrects the gate without runtime-code changes. Record real
-deployment versions before changing support metadata; a newer test dependency
-alone is not a reason to exclude a field-used patch.
+### Before changing the deployment
 
-1. Preserve the known-good beta.3 tarball, application lockfile, container image
-   digest, flows, encrypted credentials/settings secret, certificate references,
-   environment, and Edge deployment manifest. Keep secrets outside this repo.
-2. Verify the tarball against its `.sha256` file (macOS: `shasum -a 256 -c ...`;
-   Linux: `sha256sum -c ...`), running from `dist/`.
-3. Copy `dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz` into the
-   application's `packages/` directory. Change the existing dependency to:
+1. Preserve the known-good unscoped rc.2 tarball, application `package.json` and
+   lockfile, image digest, flows, encrypted credentials/settings secret,
+   certificate references, environment, and Edge deployment manifest. Keep secrets
+   outside this repository. Preserve existing beta.3 backups too, where relevant.
+2. Verify the new tarball against its `.sha256` sidecar. Run from its directory:
 
-   ```json
-    "node-red-contrib-azure-iot-edge-kpm": "file:packages/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz"
+   ```sh
+   shasum -a 256 -c papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz.sha256
    ```
 
-4. Run the application's normal dependency/lockfile update and immutable image
-   build. Keep its resolved lockfile and image digest; this library's lockfile
-   does not constrain the application's installation.
-5. Fully restart Node-RED/the container. Confirm the installed version is rc.2,
-   all expected nodes load, and there are no duplicate node-set warnings.
-6. Do not operate beta.3 and rc.2 concurrently under the same IoT identity.
+   On Linux use `sha256sum -c` instead. Retain the `.pack.json` sidecar for release
+   identity checks. It records npm's actual filename, not a path containing `@` or `/`.
+3. Copy `dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz` into the
+   application's `packages/` directory.
 
-The rc.2 method contract is unchanged from beta.3/rc.1: preserve `msg.requestId`,
-return an integer `msg.status` from 100 through 599 and a native JSON payload,
-and respond within 25 seconds. Set cloud caller timeouts to at least 30 seconds.
+### Replace the dependency — do not add a second owner
+
+Remove `node-red-contrib-azure-iot-edge-kpm` from application dependencies and add:
+
+```json
+{
+  "dependencies": {
+    "@papakpmartin/node-red-azure-iot-edge": "file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz"
+  }
+}
+```
+
+The two packages register the **same node types**. Do not leave both installed,
+use an npm alias, or add a compatibility wrapper. Existing node IDs, type names,
+`client` references, wires, ports, and configured method names are unchanged.
+Do not edit flow nodes simply to reflect the npm rename.
+
+- **Conventional user directory:** stop Node-RED, run `npm uninstall
+  node-red-contrib-azure-iot-edge-kpm`, then install the new local tarball with
+  `npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz`.
+- **Immutable container:** replace the dependency key, run the application's
+  normal dependency/lockfile update and image build, then deploy the replacement
+  image. Avoid modifying a running production container.
+- **Node-RED Projects:** update the active project's dependency manifest/lockfile
+  and dependency metadata through its normal workflow. Changing a different user
+  directory does not update a project's dependencies. Keep project backups.
+
+Preserve the resolved application lock and new image digest; a library lockfile
+does not constrain consumer installations. Fully restart Node-RED/the container.
+Verify the installed scoped package is rc.3, the old dependency is absent from
+the effective tree, all seven types load, and no duplicate/missing types are
+reported. Use `npm ls @papakpmartin/node-red-azure-iot-edge
+node-red-contrib-azure-iot-edge-kpm` from the relevant application directory.
+Do not hand-edit Node-RED's private registry cache.
+
+The scoped name is a **new npm identity**: old users do not receive it via an
+ordinary update of the old package. Version history, download counts, package
+access settings and trusted publishers do not transfer. Old published versions
+should remain available. Any deprecation notice is a separate maintainer decision
+after the new package is established; no old version is unpublished by this work.
+
+The method contract is unchanged from rc.2: preserve `msg.requestId`, return an
+integer `msg.status` from 100 through 599 and a native JSON payload within 25
+seconds. Caller response timeouts should be at least 30 seconds. A legacy flow
+using `setValue` remains `setValue`; `echo` is the name in the newer tutorial
+flows, not an automatic migration of existing user configuration.
+
+### Rollback
+
+Stop the scoped candidate. Restore the known-good old image, or restore the old
+application manifest/lock and install the unscoped rc.2 artifact with the normal
+locked build process. Restore the matching protected flow/config snapshot as
+needed. Verify the scoped dependency is removed and existing nodes load. Never
+operate old and new clients concurrently under the same IoT identity.
 
 ## Live acceptance still required
 
 Capture artifact SHA-256, runtime/SDK/Edge/image versions, architecture, sanitized
-routes/config, start/end times, and observed results. Offline fakes cannot prove
-Azure connectivity, trust, token renewal, or delivery.
+routes/config, start/end times, and observed results. Successful rc.2 field
+testing remains useful evidence for the unchanged runtime, but does not itself
+qualify a new package identity, rebuilt image, or actual rollback. Offline fakes
+cannot prove Azure connectivity, trust, token renewal, or delivery.
 
-- **Normal operation:** module input/output routes, initial and changed desired
-  properties, reported updates, concurrent/reversed method responses, and direct
-  device X.509 twin access where used. Confirm there are no silent message losses
-  or wrong-request responses.
-- **Workload renewal outage:** in an isolated deployment, make the workload API
-  unavailable during SAS renewal, then restore it. The process must remain alive,
-  log a controlled authentication failure, close/recreate the module client, and
-  resume operation without manual redeploy. Never weaken TLS to run this test.
-- **Other recovery:** offline boot, short/long network outages, DNS/Edge Hub
-  restart, and transient twin failures. Observe recovery after infrastructure
-  returns; use the agreed field recovery SLO (proposed: within five minutes).
+- **Normal operation:** module input/output routes, initial/changed desired state,
+  reported updates, concurrent/reversed method responses, and direct X.509 device
+  twin access where used. Confirm no silent losses or wrong-request responses.
+- **Workload renewal outage:** in an isolated deployment, interrupt the workload
+  API at renewal, then restore it. The process must remain alive, log a controlled
+  error, close/recreate the module client and resume without manual redeploy.
+  Do not weaken TLS to test this.
+- **Other recovery:** offline boot, network/DNS outages, Edge Hub restart, and
+  transient twin failures. Observe recovery after infrastructure returns against
+  the agreed field SLO (proposed: within five minutes).
 - **Load:** burst output traffic while methods arrive. Method responses must not
-  disappear when telemetry slots are full. Count rejected/uncertain sends rather
-  than treating queue admission as downstream delivery.
-- **Redeploy/credentials:** child-only and full deploys; repeated method-node
-  replacement; certificate replacement followed by config recreation or process
-  restart. Check listeners, process memory, and absence of stale messages.
+  disappear when telemetry slots are full. Account for rejected/uncertain sends;
+  SDK completion is not downstream processing.
+- **Redeploy/credentials:** child-only/full deploys, method-node replacement, and
+  certificate replacement followed by config recreation or process restart.
+  Check listener/memory growth and stale messages.
 - **Soak/canary:** at least 72 hours across real renewals and a representative
-  seven-day canary unless a different gate is explicitly approved. Record CPU,
-  memory, reconnect time, method timeouts, and accepted/observed/rejected traffic.
-- **Rollback:** stop the candidate and restore the known-good image/package plus
-  matching application lock and flow/config snapshot. Verify service returns.
+  seven-day canary, or an explicitly approved alternate gate. Record CPU, memory,
+  recovery time, timeouts, and accepted/observed/rejected traffic.
+- **Rollback:** rehearse the procedure above under an induced failure.
 
-If an SDK close fails or times out, the owner intentionally stops reconnecting
-and rejects new work: restart the Node-RED process/container. A timed-out close
-is not proof that the old connection has terminated.
+If an SDK close fails or times out, the owner intentionally refuses a replacement
+connection: restart the process/container. A timeout is not proof the old client
+terminated.
 
-## Rebuild and qualify locally
+## Local qualification
 
-Use npm 11.21.1 with Node 22 (matching `packageManager` and `.nvmrc`):
+Use npm 11.21.1 and Node 22, matching `packageManager` and `.nvmrc`:
 
 ```sh
 npm ci
 npm run lint
 npm test
 npm audit --omit=dev --audit-level=high
-RELEASE_TAG=v1.0.0-rc.2 CHECK_NPM_VERSION=1 npm run release:check
+RELEASE_TAG=v1.0.0-rc.3 CHECK_NPM_VERSION=1 npm run release:check
 npm run pack:release
-RELEASE_TAG=v1.0.0-rc.2 npm run release:check -- dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz
-npm run test:package -- dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz
-npm publish ./dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz --dry-run --ignore-scripts --tag next
+RELEASE_TAG=v1.0.0-rc.3 RELEASE_PRERELEASE=true npm run release:check -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
+NODE_RED_TEST_VERSION=4.1.13 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
+NODE_RED_TEST_VERSION=4.1.16 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
+NODE_RED_TEST_VERSION=4.1.13 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
+NODE_RED_TEST_VERSION=4.1.16 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
+npm publish ./dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz --dry-run --ignore-scripts --access public --tag next
 ```
 
-The directory form (`release:check -- dist`) requires exactly one release tarball;
-GitHub uses a fresh output directory and this strict check. When preserving older
-local candidates alongside the new one, pass the exact archive path as above.
-`test:package`
-installs the supplied tarball with a fresh consumer dependency resolution,
-discovers/deploys all seven types in real Node-RED using fake Azure clients, and
-audits the consumer's production tree. It requires registry access and OpenSSL.
-Use `NODE_RED_TEST_VERSION=4.1.13` to repeat the packed test at the supported
-Node-RED minimum. It is not a live Azure test.
+The commands above do not publish. Keep `--dry-run` unless publication is
+explicitly authorized. `npm pack --json` supplies the filename; release checks
+verify its `.pack.json`, checksum, manifest identity and runtime/editor/helper
+bytes. The directory form (`release:check -- dist`) requires exactly one tarball;
+pass the exact path when preserving older candidates in the same local directory.
 
-## GitHub/npm setup (maintainer action)
+`test:package` resolves a fresh consumer installation, discovers and deploys all
+six source examples in real Node-RED with fake Azure clients, exercises their
+diagnostics, and audits production dependencies. `test:migration` runs the
+original rc.2 flow before/after dependency replacement and after rollback, keeping
+its original IDs, wires, config links and `setValue` method. It verifies only one
+package owner is present. Neither script connects to Azure.
 
-1. Configure an npm trusted publisher for
-   `papakpmartin/node-red-contrib-azure-iot-edge-kpm`, workflow `npmpublish.yml`,
-   environment `npm`, with direct `npm publish` allowed. This is a one-time npm
-   account setting; it cannot be established by a dry-run. Newly configured
-   publishers must complete their first publish within npm's validation window.
-2. Configure the GitHub `npm` environment with required reviewer protection and
-   release-tag restrictions. Protect release tags and review source before tagging.
-3. Deliberately create/push `v1.0.0-rc.2` only after local/live qualification is
-   acceptable. Use the manual **Node.js Package** workflow with that existing tag
-   to exercise the GitHub build/qualification/dry-run path **without publishing**.
-4. Only when authorized, publish a GitHub release for that exact tag, marked
-   **prerelease**. The `published` event rebuilds/qualifies one artifact and passes
-   its tarball/checksum to the approved OIDC job, which verifies them again and
-   publishes under `next`. Authentication is tokenless; no npm token is required.
-5. Confirm registry integrity/version and install the registry artifact before
-   claiming end-to-end npm publication success. Dry-runs do not test OIDC access.
+The migration baseline defaults to the original `dist/...rc.2.tgz`, verified
+against its recorded SHA-256. `LEGACY_PACKAGE_TARBALL` can specify that exact
+baseline elsewhere. In a clean CI checkout, the script reconstructs the tarball
+from commit `f62530dfe2bd1ed1a7b3557fa7a9ced353b0de87` and requires the identical
+recorded hash. Full Git history, registry access, OpenSSL and tar are required;
+failure to obtain/verify the baseline fails the gate, not a skipped test. Set
+`RECONSTRUCT_LEGACY_BASELINE=1` to exercise this path locally.
 
-A stable release needs a new `1.0.0` manifest/lock/changelog commit and tag
-`v1.0.0`, its own packed-artifact qualification, and a GitHub release **not**
-marked prerelease. It publishes under `latest`. Never relabel a beta tarball as
-1.0.0 or republish an existing npm version. See `dependency-risk.md` for explicit
-security acceptance still needed before stable promotion.
+## npm/GitHub setup — maintainer actions, not automated by local tests
+
+First confirm that you control the npm **`papakpmartin` scope**; the matching
+GitHub username alone is not proof. The scoped package is public and needs no
+paid private-package plan. Its trusted publisher is separate from the old package.
+
+### First-package bootstrap
+
+If the scoped package does not yet exist, its npm settings may need a bootstrap
+publication before trusted publishing can be configured. The straightforward
+option is an **explicitly authorized interactive first rc.3 publish**, using the
+tested tarball, npm account login/2FA and `--access public --tag next`. Do not
+paste account credentials or tokens into this repository or agent output.
+
+After that first publication, configure the package's trusted publisher for a
+**subsequent new version**. Do not then try to republish rc.3 through a GitHub
+release: the availability check correctly rejects an already-published version.
+A supported staged-package/placeholder bootstrap is another possible route, but
+requires separate review/authorization and compatible tooling; this workflow
+uses direct publishing and does not create placeholders or stage packages.
+
+No first publication, staging, publisher setup or account changes are performed
+by preparing or qualifying this candidate. A dry-run does not bootstrap a package
+or prove scope ownership, 2FA permission, or OIDC authorization.
+
+### Trusted publishing once package settings are available
+
+Configure these exact fields on the **new scoped package**, not the old package:
+
+| Field | Value |
+| --- | --- |
+| Organization/user | `papakpmartin` |
+| Repository | `node-red-contrib-azure-iot-edge-kpm` |
+| Workflow filename | `npmpublish.yml` |
+| Environment | `npm` |
+| Allowed action | Direct `npm publish` |
+
+Configure GitHub's `npm` environment with required-reviewer/tag protections. npm
+currently requires a new trusted publisher's first successful publish within two
+days; create it when ready to publish the next candidate, not weeks in advance.
+Dry-runs and `npm whoami` do not validate OIDC publishing access.
+
+For a version not already published, deliberately create/push its matching
+`v<version>` tag only when authorized. The manual **Node.js Package** workflow
+qualifies that existing tag without publication. Publishing a GitHub release
+marked **prerelease** runs exact-artifact qualification and the approved OIDC job,
+publishing under `next` with public access. It transfers the tarball, checksum
+and pack identity metadata rather than rebuilding during the publish job.
+Provenance is generated by supported public GitHub OIDC publishing, not proven
+by a local dry-run.
+
+Verify registry identity/integrity and install the registry artifact before
+claiming end-to-end publication success. Then manually submit the new npm
+identity at https://flows.nodered.org/add/node; the `node-red` keyword does not
+automatically create or migrate a Flow Library entry. Decide on any old-package
+deprecation message separately after successful adoption; leave old versions
+available for existing users and rollback.
+
+A stable release needs its own `1.0.0` manifest/lock/changelog commit, `v1.0.0`
+tag, packed-artifact qualification and a GitHub release **not** marked prerelease.
+It publishes under `latest`. Never relabel an older tarball or republish an npm
+version. See `dependency-risk.md` for security acceptance still needed before
+stable promotion.

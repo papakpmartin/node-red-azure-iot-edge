@@ -1,6 +1,6 @@
 {
-    "name": "node-red-contrib-azure-iot-edge-kpm",
-    "version": "1.0.0-rc.2",
+    "name": "@papakpmartin/node-red-azure-iot-edge",
+    "version": "1.0.0-rc.3",
     "author": {
         "name": "Ken Martin",
         "email": "kmartin@hydraflexinc.com",
@@ -13,6 +13,9 @@
     "license": "MIT",
     "description": "Module to connect to and interact with Azure IoT Edge using Node-Red",
     "packageManager": "npm@11.21.1",
+    "publishConfig": {
+        "access": "public"
+    },
     "bundleDependencies": [],
     "dependencies": {
         "azure-iot-device": "1.18.4",
@@ -26,6 +29,7 @@
         "lint": "node scripts/lint.js",
         "test": "node --test --test-concurrency=1 test/*.test.js",
         "test:package": "node test/package-smoke.js",
+        "test:migration": "node test/package-migration.js",
         "pack:release": "node scripts/pack-release.js",
         "release:check": "node scripts/release-check.js"
     },

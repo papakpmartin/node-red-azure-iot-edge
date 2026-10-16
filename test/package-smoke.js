@@ -74,7 +74,7 @@ try {
     }));
     console.log(npm(['install', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], { cwd: userDirectory }));
     for (const file of exampleFiles) {
-        console.log(childProcess.execFileSync(process.execPath, [path.join(__dirname, 'fixtures/packed-discovery.js'), userDirectory, file], {
+        console.log(childProcess.execFileSync(process.execPath, [path.join(__dirname, 'fixtures/packed-discovery.js'), userDirectory, file, packedManifest.name], {
             cwd: userDirectory, encoding: 'utf8', timeout: 30000
         }));
     }

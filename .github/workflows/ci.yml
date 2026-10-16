@@ -22,6 +22,8 @@ jobs:
             node-red: '4.1.16'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Reconstruct and hash-check the original rc.2 migration fixture.
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
@@ -31,5 +33,8 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run test:package
+        env:
+          NODE_RED_TEST_VERSION: ${{ matrix.node-red }}
+      - run: npm run test:migration
         env:
           NODE_RED_TEST_VERSION: ${{ matrix.node-red }}

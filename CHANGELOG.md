@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 1.0.0-rc.3
+
+- Move the npm distribution to `@papakpmartin/node-red-azure-iot-edge` with explicit
+  public access. The GitHub repository is unchanged. Remove the old unscoped
+  dependency before installing the new package; do not keep both installed.
+- Preserve all seven node types, runtime/editor/helper bytes, flow configuration,
+  and resolved dependencies from rc.2. No flow rewiring or method-name migration
+  is required.
+- Make exact-artifact release checks scope-aware, using npm-reported filenames,
+  identity metadata, and SHA-256 sidecars. Add old-to-scoped upgrade and rollback
+  tests with the original rc.2 artifact and unchanged legacy flow.
 
 - Add a newcomer-oriented README with connection selection, a routed-message
   quick start, message contracts, diagnostics, and troubleshooting. Move project
@@ -10,7 +20,8 @@
   example self-contained and manual, with scalar-safe JSON forwarding.
 - Check every example's syntax/references and deploy each packed example in
   isolated Node-RED tests, including Catch/Status/Complete diagnostics.
-- No runtime, dependency, or already-built rc.2 artifact changes.
+- No runtime, dependency, or already-built rc.2 artifact changes. The scoped
+  tarball is a distinct new candidate and still needs field acceptance.
 
 ## 1.0.0-rc.2
 

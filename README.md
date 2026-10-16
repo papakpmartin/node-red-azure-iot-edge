@@ -44,26 +44,26 @@ Azure IoT Edge 1.6 LTS is recommended. Use current supported security patches
 that your deployment has qualified; compatibility with an older patch is not a
 recommendation to remain on it.
 
-### Local release candidate
+### Local release candidate and scoped package
 
-The current qualification candidate is **1.0.0-rc.2**. That does not mean it has
+The current qualification candidate is **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.3`**. That does not mean it has
 been published to npm. An unversioned `npm install` may install an older stable
 release. See the [release and validation guide](docs/release-validation.md) for
 candidate status, checksums, packaging, and publication steps.
 
 To use the local artifact, copy
-`dist/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz` into your Node-RED
+`dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz` into your Node-RED
 application's `packages/` directory and set its dependency:
 
 ```json
-"node-red-contrib-azure-iot-edge-kpm": "file:packages/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz"
+"@papakpmartin/node-red-azure-iot-edge": "file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz"
 ```
 
 For a conventional Node-RED user directory, an alternative is to run this **from
 that directory**, after copying the tarball into its `packages/` directory:
 
 ```sh
-npm install ./packages/node-red-contrib-azure-iot-edge-kpm-1.0.0-rc.2.tgz
+npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
 ```
 
 For containers, use the application's normal dependency/lockfile update and
@@ -73,6 +73,38 @@ and the previous image digest. **Fully restart Node-RED/the container after
 installation.** Do not operate two clients under the same IoT identity to compare
 versions.
 
+### Migrating from the old package
+
+The npm identity changed from `node-red-contrib-azure-iot-edge-kpm` to
+`@papakpmartin/node-red-azure-iot-edge`. The GitHub repository name is unchanged.
+This is a **new npm package**, not an automatic update to existing installations;
+its versions, download history, and npm access settings are separate.
+
+**Remove the old dependency rather than installing both packages.** They register
+the same seven types. Existing flows, node IDs, `client` references, method names,
+and wiring do not need to change. Keep a backup of the old application manifest,
+lockfile, flows/settings, and image before migration.
+
+For a conventional user directory, stop Node-RED, copy the new tarball into
+`packages/`, then run from that user directory:
+
+```sh
+npm uninstall node-red-contrib-azure-iot-edge-kpm
+npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
+```
+
+Restart and check that only the scoped package is installed and all existing
+nodes load. For immutable containers, replace the dependency key, update the
+application lockfile, and rebuild/redeploy instead. For Node-RED Projects, make
+the corresponding change in the active project's dependency manifest/lockfile
+and dependency metadata, not an unrelated user directory. Do not hand-edit
+Node-RED's private registry cache or recreate flow nodes.
+
+For rollback, stop the candidate and restore the matching old image or package,
+application manifest/lockfile, and protected flow/config snapshot. Do not run
+both versions concurrently under the same IoT identity. See the
+[migration and release guide](docs/release-validation.md) for detailed checks.
+
 ## Quick start: send a module message
 
 Prerequisites: Node-RED is deployed as a working IoT Edge module, the package is
@@ -81,7 +113,7 @@ the deployment module ID **`nodeRed`**; substitute your actual module ID exactly
 
 1. Check the startup log for the required Node.js/Node-RED versions and any
    package-loading errors.
-2. In the editor, choose **Import → Examples → node-red-contrib-azure-iot-edge-kpm
+2. In the editor, choose **Import → Examples → @papakpmartin/node-red-azure-iot-edge
    → 01-module-output**. You can also import the linked JSON file below.
 3. Open Module Output and select its Module Client configuration. If you already
    have a Module Client, reuse it and remove the unused imported configuration
@@ -375,7 +407,7 @@ See [dependency risks](docs/dependency-risk.md) and the
 - Node.js 22 and the Node-RED 4 versions listed above are required.
 
 Test the candidate and rollback procedure on representative devices before
-fleet rollout. Release-specific rc.1/rc.2 details are in [CHANGELOG.md](CHANGELOG.md).
+fleet rollout. Release-specific rc.1/rc.2/rc.3 details are in [CHANGELOG.md](CHANGELOG.md).
 
 ## History and attribution
 
@@ -384,6 +416,8 @@ after its original npm package disappeared around February 17, 2020. Related
 historical sources include [iotblackbelt/noderededgemodule](https://github.com/iotblackbelt/noderededgemodule)
 and [gbbiotwesouth/noderededgemodule](https://hub.docker.com/r/gbbiotwesouth/noderededgemodule/).
 This project publishes the Node-RED nodes independently of those container images.
+The former npm name was `node-red-contrib-azure-iot-edge-kpm`; the public scoped
+successor is `@papakpmartin/node-red-azure-iot-edge`.
 
 The modernization uses Azure's IoT Node.js device SDK and retains the serialized
 node types published in 0.6.1. The original MIT license and attribution are

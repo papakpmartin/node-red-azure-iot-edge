@@ -9,7 +9,10 @@ const { createRequire } = require('node:module');
 
 const userDirectory = process.argv[2];
 const exampleFile = process.argv[3] || 'example.json';
+const packageName = process.argv[4];
+assert.ok(packageName, 'expected package identity is required');
 const installedRequire = createRequire(path.join(userDirectory, 'package.json'));
+assert.equal(installedRequire(`${packageName}/package.json`).name, packageName);
 const RED = installedRequire('node-red');
 const azure = installedRequire('azure-iot-device');
 const logs = [];
@@ -56,7 +59,7 @@ async function main() {
         IOTEDGE_IOTHUBHOSTNAME: 'test.azure-devices.net', IOTEDGE_DEVICEID: 'test-device',
         PATH_TO_CERTIFICATE_FILE: cert, PATH_TO_KEY_FILE: key
     });
-    const flow = installedRequire(`node-red-contrib-azure-iot-edge-kpm/examples/${exampleFile}`);
+    const flow = installedRequire(`${packageName}/examples/${exampleFile}`);
     fs.writeFileSync(path.join(userDirectory, 'flows.json'), JSON.stringify(flow));
     RED.init({
         userDir: userDirectory, flowFile: 'flows.json', httpAdminRoot: false,
@@ -71,7 +74,7 @@ async function main() {
     await started;
     const expected = ['moduleclient', 'moduletwin', 'moduleinput', 'moduleoutput', 'modulemethod', 'device-client', 'device-twin'];
     for (const type of expected) assert.equal(typeof RED.nodes.getType(type), 'function', `${type} was not discovered`);
-    const sets = RED.nodes.getNodeList().filter((entry) => entry.module === 'node-red-contrib-azure-iot-edge-kpm');
+    const sets = RED.nodes.getNodeList().filter((entry) => entry.module === packageName);
     assert.equal(sets.length, 2, 'expected one discovered node set per runtime/editor pair');
     for (const entry of sets) assert.ok(!entry.err, JSON.stringify(entry));
     for (const node of flow.filter((node) => expected.includes(node.type))) assert.ok(RED.nodes.getNode(node.id), `${node.type} was not constructed`);

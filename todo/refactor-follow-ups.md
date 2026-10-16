@@ -7,16 +7,22 @@ Source/tarball Node-RED entry-point duplication checks remain in place.
 
 ## Still Required Before Stable Release
 
-- Validate the exact rc.2 artifact in the real deployment, including workload
+- Validate the exact scoped rc.3 artifact and dependency migration in the real deployment, including workload
   failure at renewal, X.509 twins, network/Edge Hub recovery, and redeploys.
 - Record 72-hour soak and seven-day canary results or an explicit alternate gate.
-- Rehearse rollback with the beta.3 artifact/image and matching flow/config backup.
+- Rehearse rollback to the known-good unscoped rc.2 artifact/image and matching
+  application manifest, lockfile, and flow/config backup. Do not install both names.
 - Explicitly accept residual dependency risks in `docs/dependency-risk.md`.
-- Configure npm trusted publishing and the protected GitHub `npm` environment;
+- Confirm ownership of the npm `papakpmartin` scope, handle first-publication
+  bootstrap if necessary, and configure the new package's trusted publisher plus
+  the protected GitHub `npm` environment;
   a dry-run does not prove real OIDC permissions.
 - Run the GitHub manual qualification workflow against a deliberately created
   release tag before authorizing publication. No tag/release/push is implicit in
   local qualification.
+- After a verified scoped publication, manually submit the new identity to the
+  Node-RED Flow Library. Decide on an old-package deprecation notice separately;
+  do not unpublish old versions or create a duplicate-registering wrapper.
 
 ## Follow-on Qualification
 
