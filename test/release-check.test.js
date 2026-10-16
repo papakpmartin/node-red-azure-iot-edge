@@ -7,7 +7,7 @@ const { validateRelease, assertAvailable } = require('../scripts/release-check')
 function fixture(version = '1.0.0-rc.1') {
     return {
         manifest: { name: 'example', version },
-        lock: { name: 'example', version, packages: { '': { version } } },
+        lock: { name: 'example', version, packages: { '': { name: 'example', version } } },
         packed: { name: 'example', version }
     };
 }
@@ -26,6 +26,17 @@ test('release checks reject mismatched tags, manifests, lockfiles and release fl
     assert.throws(() => validateRelease(manifest, lock, { ...packed, version: '1.0.0' }, 'v1.0.0-rc.1', true), /packed package version/);
     assert.throws(() => validateRelease(manifest, lock, { ...packed, name: 'wrong' }, 'v1.0.0-rc.1', true), /packed package name/);
     assert.throws(() => validateRelease(manifest, lock, packed, 'v1.0.0-rc.1', false), /prerelease flag/);
+    assert.throws(() => validateRelease(manifest, { ...lock, packages: { '': { name: 'wrong', version: manifest.version } } }, packed, 'v1.0.0-rc.1', true), /root lockfile name/);
+});
+
+test('scoped releases require public access in both source and packed manifests', () => {
+    const { manifest, lock, packed } = fixture();
+    for (const value of [manifest, lock, lock.packages[''], packed]) value.name = '@papakpmartin/example';
+    assert.throws(() => validateRelease(manifest, lock, packed, 'v1.0.0-rc.1', true), /explicitly be public/);
+    manifest.publishConfig = { access: 'public' };
+    assert.throws(() => validateRelease(manifest, lock, packed, 'v1.0.0-rc.1', true), /publishConfig mismatch/);
+    packed.publishConfig = { access: 'public' };
+    assert.equal(validateRelease(manifest, lock, packed, 'v1.0.0-rc.1', true), 'next');
 });
 
 test('only a confirmed npm 404 means a release version is available', async () => {
