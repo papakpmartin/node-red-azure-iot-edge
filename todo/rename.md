@@ -2,6 +2,12 @@
 
 Prepared October 16, 2026.
 
+**Execution status:** local implementation and qualification completed October
+16, 2026. See [the rc.3 qualification record](../docs/qualification-1.0.0-rc.3.md)
+for the artifact digest, tests and remaining owner actions. No external release
+or account changes were performed. The original prompt below is retained as the
+starting-state specification, not an instruction to repeat the migration.
+
 Target package: **`@papakpmartin/node-red-azure-iot-edge`**
 
 This file is a future implementation prompt and checklist, not a record that the
