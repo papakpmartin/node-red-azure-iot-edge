@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Update canonical repository/author URLs, README links and trusted-publisher
+  instructions after the GitHub rename to `papakpmartin/node-red-azure-iot-edge`.
+- Keep the existing rc.3 tarball and its qualification record unchanged. A new
+  publication candidate with the final repository metadata must be built and
+  qualified separately; no version bump or publication is part of this change.
+
 ## 1.0.0-rc.3
 
 - Move the npm distribution to `@papakpmartin/node-red-azure-iot-edge` with explicit

@@ -3,8 +3,14 @@
 ## Test the scoped rc.3 without npm publication
 
 Candidate: **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.3`**.
-The GitHub repository remains
-`papakpmartin/node-red-contrib-azure-iot-edge-kpm`; its name was not changed.
+The GitHub repository is now `papakpmartin/node-red-azure-iot-edge`.
+
+**Repository-rename status:** the source repository/author URLs have been updated,
+but the already-qualified rc.3 tarball is preserved with its original metadata.
+The rc.3 testing commands below still refer to that artifact. Before publication,
+prepare and qualify a new final-metadata candidate (recommended: rc.4); do not
+silently rebuild or publish the old rc.3 artifact as if it contained the new URLs.
+Historical qualification records describe the repository name at packing time.
 
 Use Node 22.16.0 or a newer supported 22.x patch and Node-RED 4.1.13 or newer
 within 4.x. Prefer current qualified security patches. Node 24/25 and Node-RED 5
@@ -167,12 +173,13 @@ paid private-package plan. Its trusted publisher is separate from the old packag
 
 If the scoped package does not yet exist, its npm settings may need a bootstrap
 publication before trusted publishing can be configured. The straightforward
-option is an **explicitly authorized interactive first rc.3 publish**, using the
-tested tarball, npm account login/2FA and `--access public --tag next`. Do not
+option is an **explicitly authorized interactive first prerelease publish** of the
+new final-metadata candidate (recommended: rc.4), using its tested tarball, npm
+account login/2FA and `--access public --tag next`. Do not
 paste account credentials or tokens into this repository or agent output.
 
 After that first publication, configure the package's trusted publisher for a
-**subsequent new version**. Do not then try to republish rc.3 through a GitHub
+**subsequent new version**. Do not then try to republish that first version through a GitHub
 release: the availability check correctly rejects an already-published version.
 A supported staged-package/placeholder bootstrap is another possible route, but
 requires separate review/authorization and compatible tooling; this workflow
@@ -189,7 +196,7 @@ Configure these exact fields on the **new scoped package**, not the old package:
 | Field | Value |
 | --- | --- |
 | Organization/user | `papakpmartin` |
-| Repository | `node-red-contrib-azure-iot-edge-kpm` |
+| Repository | `node-red-azure-iot-edge` |
 | Workflow filename | `npmpublish.yml` |
 | Environment | `npm` |
 | Allowed action | Direct `npm publish` |

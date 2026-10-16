@@ -7,6 +7,10 @@ Source/tarball Node-RED entry-point duplication checks remain in place.
 
 ## Still Required Before Stable Release
 
+- The owner renamed GitHub to `papakpmartin/node-red-azure-iot-edge`. Canonical
+  source URLs and npm publisher instructions are updated; existing tarballs are
+  unchanged. Prepare/qualify a new final-metadata candidate (recommended rc.4)
+  before publication rather than overwriting rc.3 or rewriting its test record.
 - Validate the exact scoped rc.3 artifact and dependency migration in the real deployment, including workload
   failure at renewal, X.509 twins, network/Edge Hub recovery, and redeploys.
 - Record 72-hour soak and seven-day canary results or an explicit alternate gate.

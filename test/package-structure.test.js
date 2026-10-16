@@ -77,10 +77,14 @@ test('runtime, editor, and example use the released node types', () => {
     }
 });
 
-test('declares the public scoped package identity without changing its repository', () => {
+test('declares the public scoped package identity and canonical GitHub repository', () => {
     assert.equal(manifest.name, '@papakpmartin/node-red-azure-iot-edge');
     assert.equal(manifest.publishConfig.access, 'public');
-    assert.equal(manifest.repository.url, 'git+https://github.com/papakpmartin/node-red-contrib-azure-iot-edge-kpm.git');
+    assert.equal(manifest.repository.url, 'git+https://github.com/papakpmartin/node-red-azure-iot-edge.git');
+    assert.equal(manifest.author.url, 'https://github.com/papakpmartin/node-red-azure-iot-edge');
+    const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
+    assert.ok(readme.includes('https://github.com/papakpmartin/node-red-azure-iot-edge/actions/workflows/npmpublish.yml/badge.svg'));
+    assert.ok(readme.includes('https://raw.githubusercontent.com/papakpmartin/node-red-azure-iot-edge/master/images/screenshot.PNG'));
     assert.equal(manifest.license, 'MIT');
 });
 

@@ -7,7 +7,7 @@ handle module direct methods using Azure's IoT device SDK over MQTT.
 This package provides **Node-RED nodes**, not a container image or a complete
 IoT Edge deployment. Bring your own Node-RED runtime and Azure identities.
 
-![Node.js Package](https://github.com/papakpmartin/node-red-contrib-azure-iot-edge-kpm/actions/workflows/npmpublish.yml/badge.svg)
+![Node.js Package](https://github.com/papakpmartin/node-red-azure-iot-edge/actions/workflows/npmpublish.yml/badge.svg)
 
 - [Choose a connection](#choose-a-connection)
 - [Requirements and installation](#requirements-and-installation)
@@ -51,6 +51,10 @@ been published to npm. An unversioned `npm install` may install an older stable
 release. See the [release and validation guide](docs/release-validation.md) for
 candidate status, checksums, packaging, and publication steps.
 
+The existing rc.3 tarball predates the GitHub repository rename. This source-only
+URL update does not rebuild it; the release guide describes preparing a new
+final-metadata candidate before publication.
+
 To use the local artifact, copy
 `dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz` into your Node-RED
 application's `packages/` directory and set its dependency:
@@ -76,7 +80,8 @@ versions.
 ### Migrating from the old package
 
 The npm identity changed from `node-red-contrib-azure-iot-edge-kpm` to
-`@papakpmartin/node-red-azure-iot-edge`. The GitHub repository name is unchanged.
+`@papakpmartin/node-red-azure-iot-edge`. The GitHub repository is now
+[`papakpmartin/node-red-azure-iot-edge`](https://github.com/papakpmartin/node-red-azure-iot-edge).
 This is a **new npm package**, not an automatic update to existing installations;
 its versions, download history, and npm access settings are separate.
 
@@ -184,7 +189,7 @@ To test `echo`, use an IoT Hub service-side tool to invoke the method on the
 caller response timeout of at least 30 seconds. Preserve `msg.requestId` through
 the response flow; the examples return the original message.
 
-![Combined module flow](https://raw.githubusercontent.com/papakpmartin/node-red-contrib-azure-iot-edge-kpm/master/images/screenshot.PNG)
+![Combined module flow](https://raw.githubusercontent.com/papakpmartin/node-red-azure-iot-edge/master/images/screenshot.PNG)
 
 The screenshot illustrates the combined layout; import the JSON for current
 behavior rather than copying historical response code from an image.

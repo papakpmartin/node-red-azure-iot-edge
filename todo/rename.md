@@ -8,6 +8,13 @@ for the artifact digest, tests and remaining owner actions. No external release
 or account changes were performed. The original prompt below is retained as the
 starting-state specification, not an instruction to repeat the migration.
 
+**Subsequent GitHub rename:** the owner has now renamed the repository to
+`papakpmartin/node-red-azure-iot-edge`. Active source URLs and publisher setup
+instructions use that name. The original prompt's repository fields below are
+historical and must not be copied into a new npm trusted-publisher configuration;
+use `docs/release-validation.md` for current setup. Existing rc.3 artifacts and
+qualification records are intentionally unchanged.
+
 Target package: **`@papakpmartin/node-red-azure-iot-edge`**
 
 This file is a future implementation prompt and checklist, not a record that the
