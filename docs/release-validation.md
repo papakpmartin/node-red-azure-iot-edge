@@ -1,16 +1,15 @@
 # Scoped candidate migration, validation and publishing
 
-## Test the scoped rc.3 without npm publication
+## Test the scoped rc.4 without npm publication
 
-Candidate: **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.3`**.
+Candidate: **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4`**.
 The GitHub repository is now `papakpmartin/node-red-azure-iot-edge`.
 
-**Repository-rename status:** the source repository/author URLs have been updated,
-but the already-qualified rc.3 tarball is preserved with its original metadata.
-The rc.3 testing commands below still refer to that artifact. Before publication,
-prepare and qualify a new final-metadata candidate (recommended: rc.4); do not
-silently rebuild or publish the old rc.3 artifact as if it contained the new URLs.
-Historical qualification records describe the repository name at packing time.
+**Repository-rename status:** rc.4 packages the final repository/author URLs after
+the GitHub rename. The already-qualified rc.3 tarball and report are preserved
+with their original metadata. Do not relabel or overwrite them; historical
+qualification records describe the repository name at packing time. Runtime code
+and resolved dependencies remain unchanged.
 
 Use Node 22.16.0 or a newer supported 22.x patch and Node-RED 4.1.13 or newer
 within 4.x. Prefer current qualified security patches. Node 24/25 and Node-RED 5
@@ -27,12 +26,12 @@ candidate keeps the same support range and runtime/editor code.
 2. Verify the new tarball against its `.sha256` sidecar. Run from its directory:
 
    ```sh
-   shasum -a 256 -c papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz.sha256
+   shasum -a 256 -c papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz.sha256
    ```
 
    On Linux use `sha256sum -c` instead. Retain the `.pack.json` sidecar for release
    identity checks. It records npm's actual filename, not a path containing `@` or `/`.
-3. Copy `dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz` into the
+3. Copy `dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz` into the
    application's `packages/` directory.
 
 ### Replace the dependency — do not add a second owner
@@ -42,7 +41,7 @@ Remove `node-red-contrib-azure-iot-edge-kpm` from application dependencies and a
 ```json
 {
   "dependencies": {
-    "@papakpmartin/node-red-azure-iot-edge": "file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz"
+    "@papakpmartin/node-red-azure-iot-edge": "file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz"
   }
 }
 ```
@@ -54,7 +53,7 @@ Do not edit flow nodes simply to reflect the npm rename.
 
 - **Conventional user directory:** stop Node-RED, run `npm uninstall
   node-red-contrib-azure-iot-edge-kpm`, then install the new local tarball with
-  `npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz`.
+  `npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz`.
 - **Immutable container:** replace the dependency key, run the application's
   normal dependency/lockfile update and image build, then deploy the replacement
   image. Avoid modifying a running production container.
@@ -64,7 +63,7 @@ Do not edit flow nodes simply to reflect the npm rename.
 
 Preserve the resolved application lock and new image digest; a library lockfile
 does not constrain consumer installations. Fully restart Node-RED/the container.
-Verify the installed scoped package is rc.3, the old dependency is absent from
+Verify the installed scoped package is rc.4, the old dependency is absent from
 the effective tree, all seven types load, and no duplicate/missing types are
 reported. Use `npm ls @papakpmartin/node-red-azure-iot-edge
 node-red-contrib-azure-iot-edge-kpm` from the relevant application directory.
@@ -132,14 +131,14 @@ npm ci
 npm run lint
 npm test
 npm audit --omit=dev --audit-level=high
-RELEASE_TAG=v1.0.0-rc.3 CHECK_NPM_VERSION=1 npm run release:check
+RELEASE_TAG=v1.0.0-rc.4 CHECK_NPM_VERSION=1 npm run release:check
 npm run pack:release
-RELEASE_TAG=v1.0.0-rc.3 RELEASE_PRERELEASE=true npm run release:check -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
-NODE_RED_TEST_VERSION=4.1.13 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
-NODE_RED_TEST_VERSION=4.1.16 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
-NODE_RED_TEST_VERSION=4.1.13 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
-NODE_RED_TEST_VERSION=4.1.16 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
-npm publish ./dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz --dry-run --ignore-scripts --access public --tag next
+RELEASE_TAG=v1.0.0-rc.4 RELEASE_PRERELEASE=true npm run release:check -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
+NODE_RED_TEST_VERSION=4.1.13 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
+NODE_RED_TEST_VERSION=4.1.16 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
+NODE_RED_TEST_VERSION=4.1.13 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
+NODE_RED_TEST_VERSION=4.1.16 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
+npm publish ./dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz --dry-run --ignore-scripts --access public --tag next
 ```
 
 The commands above do not publish. Keep `--dry-run` unless publication is
@@ -174,7 +173,7 @@ paid private-package plan. Its trusted publisher is separate from the old packag
 If the scoped package does not yet exist, its npm settings may need a bootstrap
 publication before trusted publishing can be configured. The straightforward
 option is an **explicitly authorized interactive first prerelease publish** of the
-new final-metadata candidate (recommended: rc.4), using its tested tarball, npm
+final-metadata rc.4 candidate, using its tested tarball, npm
 account login/2FA and `--access public --tag next`. Do not
 paste account credentials or tokens into this repository or agent output.
 

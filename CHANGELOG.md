@@ -1,12 +1,14 @@
 # Changelog
 
-## Unreleased
+## 1.0.0-rc.4
 
 - Update canonical repository/author URLs, README links and trusted-publisher
   instructions after the GitHub rename to `papakpmartin/node-red-azure-iot-edge`.
-- Keep the existing rc.3 tarball and its qualification record unchanged. A new
-  publication candidate with the final repository metadata must be built and
-  qualified separately; no version bump or publication is part of this change.
+- Package a separate final-metadata candidate under the scoped npm name. Preserve
+  the rc.3 tarball and its qualification record rather than rebuilding that version.
+- No runtime/editor/helper, resolved dependency, Node-RED type, flow contract or
+  supported-version changes. Local artifact qualification is not npm publication
+  or proof of field acceptance.
 
 ## 1.0.0-rc.3
 

@@ -2,8 +2,8 @@
 
 Assessment date: October 16, 2026.
 
-Candidate: `@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.3`
-(unchanged resolved dependencies from unscoped rc.2), Node.js 22,
+Candidate: `@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4`
+(unchanged resolved dependencies from scoped rc.3 and unscoped rc.2), Node.js 22,
 Node-RED 4.1.13/4.1.16 qualification, `azure-iot-device@1.18.4`,
 and `azure-iot-device-mqtt@1.16.4`.
 

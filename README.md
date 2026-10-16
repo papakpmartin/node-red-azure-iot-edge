@@ -46,28 +46,29 @@ recommendation to remain on it.
 
 ### Local release candidate and scoped package
 
-The current qualification candidate is **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.3`**. That does not mean it has
+The current qualification candidate is **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4`**. That does not mean it has
 been published to npm. An unversioned `npm install` may install an older stable
 release. See the [release and validation guide](docs/release-validation.md) for
 candidate status, checksums, packaging, and publication steps.
 
-The existing rc.3 tarball predates the GitHub repository rename. This source-only
-URL update does not rebuild it; the release guide describes preparing a new
-final-metadata candidate before publication.
+rc.4 includes the final repository/author URLs after the GitHub rename to
+`papakpmartin/node-red-azure-iot-edge`. The earlier rc.3 tarball is preserved with
+its original metadata; it has not been overwritten or relabeled. Runtime code
+and resolved dependencies are unchanged.
 
 To use the local artifact, copy
-`dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz` into your Node-RED
+`dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz` into your Node-RED
 application's `packages/` directory and set its dependency:
 
 ```json
-"@papakpmartin/node-red-azure-iot-edge": "file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz"
+"@papakpmartin/node-red-azure-iot-edge": "file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz"
 ```
 
 For a conventional Node-RED user directory, an alternative is to run this **from
 that directory**, after copying the tarball into its `packages/` directory:
 
 ```sh
-npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
+npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
 ```
 
 For containers, use the application's normal dependency/lockfile update and
@@ -95,7 +96,7 @@ For a conventional user directory, stop Node-RED, copy the new tarball into
 
 ```sh
 npm uninstall node-red-contrib-azure-iot-edge-kpm
-npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.3.tgz
+npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
 ```
 
 Restart and check that only the scoped package is installed and all existing
@@ -412,7 +413,7 @@ See [dependency risks](docs/dependency-risk.md) and the
 - Node.js 22 and the Node-RED 4 versions listed above are required.
 
 Test the candidate and rollback procedure on representative devices before
-fleet rollout. Release-specific rc.1/rc.2/rc.3 details are in [CHANGELOG.md](CHANGELOG.md).
+fleet rollout. Release-specific rc.1/rc.2/rc.3/rc.4 details are in [CHANGELOG.md](CHANGELOG.md).
 
 ## History and attribution
 
