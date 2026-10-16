@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.0.0 — October 16, 2026
+
+First stable modernization release, published as
+`@papakpmartin/node-red-azure-iot-edge`. Remove the former
+`node-red-contrib-azure-iot-edge-kpm` dependency before installing the scoped
+package; both packages register the same types and must not coexist.
+
+- Support Node.js `>=22.16.0 <23` and Node-RED `>=4.1.13 <5`, using MQTT and
+  `azure-iot-device@1.18.4` / `azure-iot-device-mqtt@1.16.4`.
+- Preserve all seven serialized node types and existing `client` references.
+  Keep a single Module Client, with separately owned X.509 Device Client state.
+- Retain Azure's environment factory for workload signing, gateway selection and
+  trust. Contain renewal-provider errors and close before reconnecting; uncertain
+  close requires a process restart instead of overlapping identity clients.
+- Retry passive device-twin initialization; bound pending work and reserve method
+  response capacity; synchronize output status and clean up owned registrations.
+- Require `msg.requestId` for correlated method responses and send native JSON
+  response values. This intentionally changes legacy uncorrelated/double-encoded
+  behavior; preserve the request ID through response flows.
+- Deliver falsy JSON input values, report parsing/SDK failures through appropriate
+  Node-RED error/completion paths, and remove the unused AMQP dependency.
+- Include onboarding/routes, six importable examples, diagnostic wiring, scoped
+  artifact/identity checks, and old-package upgrade/rollback regression tests.
+- Promote the qualified rc.4 runtime/editor/helper and resolved dependency tree
+  unchanged. The owner approved current field testing as the stable release gate,
+  deferred unfinished formal acceptance checks, and accepted the documented
+  residual dependency risks. See `docs/dependency-risk.md` and the release guide;
+  this is not a claim that all recommended field tests were executed.
+
 ## 1.0.0-rc.4
 
 - Update canonical repository/author URLs, README links and trusted-publisher

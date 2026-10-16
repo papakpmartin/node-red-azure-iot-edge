@@ -1,6 +1,6 @@
 {
     "name": "@papakpmartin/node-red-azure-iot-edge",
-    "version": "1.0.0-rc.4",
+    "version": "1.0.0",
     "author": {
         "name": "Ken Martin",
         "email": "kmartin@hydraflexinc.com",

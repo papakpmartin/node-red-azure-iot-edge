@@ -44,40 +44,44 @@ Azure IoT Edge 1.6 LTS is recommended. Use current supported security patches
 that your deployment has qualified; compatibility with an older patch is not a
 recommendation to remain on it.
 
-### Prerelease installation and scoped package
+### Stable installation and scoped package
 
-The current prerelease is **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4`**,
-published to npm and verified against the qualified tarball. From the relevant
-Node-RED user/application directory, pin it for testing with:
+From the relevant Node-RED user/application directory, install the stable version:
 
 ```sh
-npm install --save-exact @papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4
+npm install --save-exact @papakpmartin/node-red-azure-iot-edge@1.0.0
 ```
 
-Stable 1.0.0 is not yet published. At prerelease verification both `next` and
-`latest` point to rc.4, so an unversioned install currently selects this prerelease.
-See the [release and validation guide](docs/release-validation.md) for checksums,
-migration, and the remaining stable-release steps. Remove the old unscoped
-dependency first if migrating; do not install both package identities.
+For an application manifest, use:
 
-rc.4 includes the final repository/author URLs after the GitHub rename to
-`papakpmartin/node-red-azure-iot-edge`. The earlier rc.3 tarball is preserved with
-its original metadata; it has not been overwritten or relabeled. Runtime code
-and resolved dependencies are unchanged.
+```json
+"@papakpmartin/node-red-azure-iot-edge": "1.0.0"
+```
+
+Stable publication targets npm's `latest` tag; prereleases use `next`. Check
+`npm view @papakpmartin/node-red-azure-iot-edge dist-tags` to verify registry
+availability before rollout. Remove the old unscoped dependency first if
+migrating; do not install both package identities. See the
+[release and validation guide](docs/release-validation.md) for checksums,
+migration, release approval, and remaining field-validation recommendations.
+
+1.0.0 promotes rc.4's runtime, editor files and resolved dependencies unchanged,
+using the final repository URLs at `papakpmartin/node-red-azure-iot-edge`.
+Earlier prerelease artifacts and their qualification records remain preserved.
 
 To use the local artifact, copy
-`dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz` into your Node-RED
+`dist/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz` into your Node-RED
 application's `packages/` directory and set its dependency:
 
 ```json
-"@papakpmartin/node-red-azure-iot-edge": "file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz"
+"@papakpmartin/node-red-azure-iot-edge": "file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz"
 ```
 
 For a conventional Node-RED user directory, an alternative is to run this **from
 that directory**, after copying the tarball into its `packages/` directory:
 
 ```sh
-npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
+npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz
 ```
 
 For containers, use the application's normal dependency/lockfile update and
@@ -100,12 +104,11 @@ the same seven types. Existing flows, node IDs, `client` references, method name
 and wiring do not need to change. Keep a backup of the old application manifest,
 lockfile, flows/settings, and image before migration.
 
-For a conventional user directory, stop Node-RED, copy the new tarball into
-`packages/`, then run from that user directory:
+For a conventional user directory, stop Node-RED, then run from that directory:
 
 ```sh
 npm uninstall node-red-contrib-azure-iot-edge-kpm
-npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
+npm install --save-exact @papakpmartin/node-red-azure-iot-edge@1.0.0
 ```
 
 Restart and check that only the scoped package is installed and all existing
@@ -421,8 +424,10 @@ See [dependency risks](docs/dependency-risk.md) and the
 - The unused AMQP dependency was removed; MQTT remains supported.
 - Node.js 22 and the Node-RED 4 versions listed above are required.
 
-Test the candidate and rollback procedure on representative devices before
-fleet rollout. Release-specific rc.1/rc.2/rc.3/rc.4 details are in [CHANGELOG.md](CHANGELOG.md).
+Test the release and rollback procedure on representative devices before fleet
+rollout. The 1.0.0 owner approval accepts the documented dependency risks and
+defers unfinished formal field gates; it does not establish qualification of
+every deployment. Release details are in [CHANGELOG.md](CHANGELOG.md).
 
 ## History and attribution
 

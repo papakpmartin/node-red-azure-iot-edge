@@ -2,7 +2,7 @@
 
 Assessment date: October 16, 2026.
 
-Candidate: `@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4`
+Release: `@papakpmartin/node-red-azure-iot-edge@1.0.0`
 (unchanged resolved dependencies from scoped rc.3 and unscoped rc.2), Node.js 22,
 Node-RED 4.1.13/4.1.16 qualification, `azure-iot-device@1.18.4`,
 and `azure-iot-device-mqtt@1.16.4`.
@@ -43,4 +43,21 @@ tree. The fresh-consumer audit reports six moderate affected-package entries
 (the same Azure chain plus this package as an affected ancestor), zero high,
 and zero critical. Immutable deployment builds should preserve their application lockfile.
 Audit counts are observations, not a claim that every advisory is reachable or
-that the remaining risks are accepted for stable release.
+automatic risk approval. The explicit 1.0.0 owner decision is recorded below.
+
+## Explicit 1.0.0 approval
+
+On October 16, 2026, Ken Martin (`papakpmartin`) explicitly selected **Approve
+and publish** after reviewing the five moderate production findings and the
+development tree's nine moderate / 17 high findings. He accepted these documented
+residual dependency risks for 1.0.0 and authorized the checked GitHub-to-npm
+stable release. No high/critical production finding was present at approval.
+
+The owner also approved current field testing as the stable release gate,
+explicitly deferring any unfinished documented live/fault/soak/canary/rollback
+checks. This is an owner release decision, not evidence those checks ran or that
+the separate deployed Node-RED runtime has been fully security-qualified.
+
+Reassess this exception at every release and on upstream fixes/new advisories;
+approval does not automatically carry to future versions or newly discovered
+risks. Do not force dependency overrides or downgrade the SDK to hide findings.

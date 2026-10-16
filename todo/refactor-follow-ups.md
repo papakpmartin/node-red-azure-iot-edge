@@ -5,27 +5,34 @@ retry, response-admission, output-status, package discovery, and editor help gap
 It also contains authentication-provider errors missed by the installed SDK.
 Source/tarball Node-RED entry-point duplication checks remain in place.
 
-## Still Required Before Stable Release
+## 1.0.0 Release Approval and Remaining Operations
+
+The owner explicitly approved and authorized 1.0.0 publication on October 16,
+2026, accepting the documented dependency risks and current field validation as
+the release gate, with unfinished formal checks deferred. These decisions do not
+represent newly executed field tests. Runtime/editor/dependency changes are not
+part of stable promotion.
 
 - The owner renamed GitHub to `papakpmartin/node-red-azure-iot-edge`. Canonical
   source URLs and npm publisher instructions are updated. rc.4 packages the final
   metadata separately; rc.3 and its historical qualification record stay unchanged.
   See `docs/qualification-1.0.0-rc.4.md` for local results and the exact digest.
-- Validate the exact scoped rc.4 artifact and dependency migration in the real deployment, including workload
+- Continue validation of the scoped release and dependency migration in real deployments, including workload
   failure at renewal, X.509 twins, network/Edge Hub recovery, and redeploys.
 - Record 72-hour soak and seven-day canary results or an explicit alternate gate.
 - Rehearse rollback to the known-good unscoped rc.2 artifact/image and matching
   application manifest, lockfile, and flow/config backup. Do not install both names.
-- Explicitly accept residual dependency risks in `docs/dependency-risk.md`.
+- Risk acceptance for 1.0.0 is recorded in `docs/dependency-risk.md`; reassess
+  at each later release and on new advisories/upstream fixes.
 - The owner completed the rc.4 npm bootstrap publish; its registry tarball and
   registry-name install are verified in `docs/qualification-1.0.0-rc.4-registry.md`.
-  Configure the new package's trusted publisher and protected GitHub `npm`
-  environment next. Local publication does not prove OIDC permissions.
-- Both `latest` and `next` currently point to rc.4. Decide whether to remove the
-  prerelease `latest` tag before stable publication; do not change tags implicitly.
+  The owner reports the new package's trusted publisher is configured. Validate
+  it through the approved stable workflow, preserving protected `npm` approval.
+  Local prerelease publication does not prove OIDC permissions.
+- Stable publication should move `latest` to 1.0.0 and leave `next` unchanged.
 - Run the GitHub manual qualification workflow against a deliberately created
-  release tag before authorizing publication. No tag/release/push is implicit in
-  local qualification.
+  release tag before publication. The owner authorized pushing master, creating
+  v1.0.0, and publishing its stable GitHub release, conditional on passing gates.
 - After a verified scoped publication, manually submit the new identity to the
   Node-RED Flow Library. Decide on an old-package deprecation notice separately;
   do not unpublish old versions or create a duplicate-registering wrapper.

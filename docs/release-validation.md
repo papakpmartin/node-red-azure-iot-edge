@@ -1,24 +1,27 @@
-# Scoped candidate migration, validation and publishing
+# Stable release migration, validation and publishing
 
-## Test the scoped rc.4 without npm publication
+## Release 1.0.0
 
-Candidate: **`@papakpmartin/node-red-azure-iot-edge@1.0.0-rc.4`**.
+Release: **`@papakpmartin/node-red-azure-iot-edge@1.0.0`**.
 The GitHub repository is now `papakpmartin/node-red-azure-iot-edge`.
 
-**Publication status:** the owner published rc.4 to npm on October 16, 2026. Its
+**Release context:** the owner published rc.4 to npm on October 16, 2026. Its
 registry tarball was verified byte-for-byte against the qualified local artifact,
 and all six examples passed a clean registry-name installation on Node-RED 4.1.13.
-Both `next` and `latest` currently point to rc.4; stable 1.0.0 is not published.
-For a registry-based test dependency use version `1.0.0-rc.4` instead of the local
-`file:` value below. Do not republish this immutable version. The local packing
-commands below document reproduction/qualification, not authorization to replace
-the preserved release artifact or publish rc.4 again.
+The owner then explicitly approved current field testing and accepted the
+documented dependency risks for stable 1.0.0, deferring unfinished formal field
+checks. See `dependency-risk.md` and the source qualification records. This is
+not evidence that all recommended live/fault/soak/canary/rollback tests ran.
 
-**Repository-rename status:** rc.4 packages the final repository/author URLs after
-the GitHub rename. The already-qualified rc.3 tarball and report are preserved
-with their original metadata. Do not relabel or overwrite them; historical
-qualification records describe the repository name at packing time. Runtime code
-and resolved dependencies remain unchanged.
+Stable publication targets `latest`, leaving `next` unchanged. Verify actual
+registry availability/tags before rollout. For a registry dependency use version
+`1.0.0` rather than the local `file:` value below. Do not republish immutable
+versions or overwrite preserved artifacts. The local commands below are release
+gates/reproduction instructions, not permission to publish manually after CI.
+
+**Repository-rename status:** 1.0.0 retains rc.4's final repository URLs, runtime,
+editor files and resolved dependencies unchanged. Earlier tarballs/reports are
+preserved; historical records describe the repository name at packing time.
 
 Use Node 22.16.0 or a newer supported 22.x patch and Node-RED 4.1.13 or newer
 within 4.x. Prefer current qualified security patches. Node 24/25 and Node-RED 5
@@ -28,20 +31,22 @@ candidate keeps the same support range and runtime/editor code.
 
 ### Before changing the deployment
 
-1. Preserve the known-good unscoped rc.2 tarball, application `package.json` and
-   lockfile, image digest, flows, encrypted credentials/settings secret,
+1. Preserve the current known-good scoped rc.4 artifact/image and the unscoped
+   rc.2 rollback artifact, application `package.json` and lockfile, image digest,
+   flows, encrypted credentials/settings secret,
    certificate references, environment, and Edge deployment manifest. Keep secrets
    outside this repository. Preserve existing beta.3 backups too, where relevant.
 2. Verify the new tarball against its `.sha256` sidecar. Run from its directory:
 
    ```sh
-   shasum -a 256 -c papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz.sha256
+   shasum -a 256 -c papakpmartin-node-red-azure-iot-edge-1.0.0.tgz.sha256
    ```
 
    On Linux use `sha256sum -c` instead. Retain the `.pack.json` sidecar for release
    identity checks. It records npm's actual filename, not a path containing `@` or `/`.
-3. Copy `dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz` into the
-   application's `packages/` directory.
+3. Prefer the exact registry version for normal application builds. For local
+   artifact testing, copy `dist/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz`
+   into the application's `packages/` directory.
 
 ### Replace the dependency — do not add a second owner
 
@@ -50,19 +55,21 @@ Remove `node-red-contrib-azure-iot-edge-kpm` from application dependencies and a
 ```json
 {
   "dependencies": {
-    "@papakpmartin/node-red-azure-iot-edge": "file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz"
+    "@papakpmartin/node-red-azure-iot-edge": "1.0.0"
   }
 }
 ```
 
+For local artifact testing the dependency value can instead be
+`file:packages/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz`.
 The two packages register the **same node types**. Do not leave both installed,
 use an npm alias, or add a compatibility wrapper. Existing node IDs, type names,
 `client` references, wires, ports, and configured method names are unchanged.
 Do not edit flow nodes simply to reflect the npm rename.
 
 - **Conventional user directory:** stop Node-RED, run `npm uninstall
-  node-red-contrib-azure-iot-edge-kpm`, then install the new local tarball with
-  `npm install ./packages/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz`.
+  node-red-contrib-azure-iot-edge-kpm`, then run
+  `npm install --save-exact @papakpmartin/node-red-azure-iot-edge@1.0.0`.
 - **Immutable container:** replace the dependency key, run the application's
   normal dependency/lockfile update and image build, then deploy the replacement
   image. Avoid modifying a running production container.
@@ -72,7 +79,7 @@ Do not edit flow nodes simply to reflect the npm rename.
 
 Preserve the resolved application lock and new image digest; a library lockfile
 does not constrain consumer installations. Fully restart Node-RED/the container.
-Verify the installed scoped package is rc.4, the old dependency is absent from
+Verify the installed scoped package is 1.0.0, the old dependency is absent from
 the effective tree, all seven types load, and no duplicate/missing types are
 reported. Use `npm ls @papakpmartin/node-red-azure-iot-edge
 node-red-contrib-azure-iot-edge-kpm` from the relevant application directory.
@@ -98,13 +105,16 @@ locked build process. Restore the matching protected flow/config snapshot as
 needed. Verify the scoped dependency is removed and existing nodes load. Never
 operate old and new clients concurrently under the same IoT identity.
 
-## Live acceptance still required
+## Field validation: approved gate and deferred checks
 
 Capture artifact SHA-256, runtime/SDK/Edge/image versions, architecture, sanitized
 routes/config, start/end times, and observed results. Successful rc.2 field
 testing remains useful evidence for the unchanged runtime, but does not itself
-qualify a new package identity, rebuilt image, or actual rollback. Offline fakes
-cannot prove Azure connectivity, trust, token renewal, or delivery.
+qualify every rebuilt image or deployment. Offline fakes cannot prove Azure
+connectivity, trust, token renewal, or delivery. On October 16, 2026, the owner
+approved current field results as the 1.0.0 release gate and explicitly deferred
+any unfinished checks below. Continue these recommendations after release;
+do not report deferred tests as passed.
 
 - **Normal operation:** module input/output routes, initial/changed desired state,
   reported updates, concurrent/reversed method responses, and direct X.509 device
@@ -140,14 +150,14 @@ npm ci
 npm run lint
 npm test
 npm audit --omit=dev --audit-level=high
-RELEASE_TAG=v1.0.0-rc.4 CHECK_NPM_VERSION=1 npm run release:check
+RELEASE_TAG=v1.0.0 CHECK_NPM_VERSION=1 npm run release:check
 npm run pack:release
-RELEASE_TAG=v1.0.0-rc.4 RELEASE_PRERELEASE=true npm run release:check -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
-NODE_RED_TEST_VERSION=4.1.13 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
-NODE_RED_TEST_VERSION=4.1.16 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
-NODE_RED_TEST_VERSION=4.1.13 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
-NODE_RED_TEST_VERSION=4.1.16 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz
-npm publish ./dist/papakpmartin-node-red-azure-iot-edge-1.0.0-rc.4.tgz --dry-run --ignore-scripts --access public --tag next
+RELEASE_TAG=v1.0.0 RELEASE_PRERELEASE=false npm run release:check -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz
+NODE_RED_TEST_VERSION=4.1.13 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz
+NODE_RED_TEST_VERSION=4.1.16 npm run test:package -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz
+NODE_RED_TEST_VERSION=4.1.13 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz
+NODE_RED_TEST_VERSION=4.1.16 npm run test:migration -- dist/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz
+npm publish ./dist/papakpmartin-node-red-azure-iot-edge-1.0.0.tgz --dry-run --ignore-scripts --access public --tag latest
 ```
 
 The commands above do not publish. Keep `--dry-run` unless publication is
@@ -155,6 +165,8 @@ explicitly authorized. `npm pack --json` supplies the filename; release checks
 verify its `.pack.json`, checksum, manifest identity and runtime/editor/helper
 bytes. The directory form (`release:check -- dist`) requires exactly one tarball;
 pass the exact path when preserving older candidates in the same local directory.
+Availability checks deliberately fail once the version is published. Do not
+repack/republish an existing version or bypass that guard to rerun a release.
 
 `test:package` resolves a fresh consumer installation, discovers and deploys all
 six source examples in real Node-RED with fake Azure clients, exercises their
@@ -177,10 +189,11 @@ First confirm that you control the npm **`papakpmartin` scope**; the matching
 GitHub username alone is not proof. The scoped package is public and needs no
 paid private-package plan. Its trusted publisher is separate from the old package.
 
-### First-package bootstrap
+### First-package bootstrap (historical)
 
-**Completed for rc.4.** The scoped package now exists. Proceed to its
-trusted-publisher settings below; the bootstrap explanation is retained for context.
+**Completed for rc.4.** The scoped package exists. The owner reports its trusted
+publisher is configured. Stable 1.0.0 uses GitHub OIDC, not another local bootstrap.
+The explanation below is retained for context; do not repeat the first publish.
 
 If the scoped package does not yet exist, its npm settings may need a bootstrap
 publication before trusted publishing can be configured. The straightforward
@@ -202,7 +215,7 @@ or prove scope ownership, 2FA permission, or OIDC authorization.
 
 ### Trusted publishing once package settings are available
 
-Configure these exact fields on the **new scoped package**, not the old package:
+The configured publisher must use these exact fields on the **scoped package**:
 
 | Field | Value |
 | --- | --- |
@@ -233,8 +246,11 @@ automatically create or migrate a Flow Library entry. Decide on any old-package
 deprecation message separately after successful adoption; leave old versions
 available for existing users and rollback.
 
-A stable release needs its own `1.0.0` manifest/lock/changelog commit, `v1.0.0`
-tag, packed-artifact qualification and a GitHub release **not** marked prerelease.
-It publishes under `latest`. Never relabel an older tarball or republish an npm
-version. See `dependency-risk.md` for security acceptance still needed before
-stable promotion.
+For 1.0.0, push the approved manifest/lock/changelog and qualification commits,
+wait for CI, create `v1.0.0`, and run the manual tag qualification workflow before
+publishing the GitHub release **not** marked prerelease. Approve the protected
+`npm` environment when requested. The publish job uses OIDC and `latest`; it must
+not be bypassed with local credentials if authentication or approval fails.
+Verify registry bytes/integrity and a clean registry-name installation afterward.
+The owner has authorized these release actions and the documented risk exception;
+new failures or new risks still block the release pending a separate decision.
