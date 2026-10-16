@@ -1,4 +1,18 @@
 [{
+  "id": "57138478.e2855c",
+  "type": "tab",
+  "label": "Azure: Combined module demo",
+  "info": "Start with the numbered focused examples. This combined flow demonstrates module twin, input/output and an echo method. Requires Edge workload identity and the README output1/input1/output2 routes."
+}, {
+  "id": "combined-intro",
+  "type": "comment",
+  "z": "57138478.e2855c",
+  "name": "Start here: one Module Client, manual sends, echo only",
+  "info": "Requires Node-RED running as an Edge module. Import one module example at a time, or reuse your existing SINGLE Module Client and remove the redundant imported config before deploying. Merge both README route snippets (output1 to hub, sensor to input1, output2 to hub), using real deployment module IDs. All Inject nodes are manual. Invoke module method echo with payload {\"value\":42} and response timeout >=30s; expect status 200 with {\"echo\":{\"value\":42}}. No device setting is changed. Preserve requestId. The input transformer annotates objects but preserves arrays/scalars, re-encoding strings for Module Output. Review Debug output before production use.",
+  "x": 430,
+  "y": 20,
+  "wires": []
+}, {
   "id": "44969a6.3050964",
   "type": "function",
   "z": "57138478.e2855c",
@@ -88,9 +102,9 @@
   "topic": "",
   "payload": "",
   "payloadType": "date",
-  "repeat": "10",
+  "repeat": "",
   "crontab": "",
-  "once": true,
+  "once": false,
   "onceDelay": 0.1,
   "x": 751,
   "y": 304,
@@ -100,7 +114,7 @@
   "type": "modulemethod",
   "z": "57138478.e2855c",
   "client": "99470517.72f7f8",
-  "method": "setValue",
+  "method": "echo",
   "x": 936,
   "y": 652,
   "wires": [["766d143b.b9826c", "8f6c02.a49314"]]
@@ -144,7 +158,7 @@
   "type": "function",
   "z": "57138478.e2855c",
   "name": "response msg",
-  "func": "msg.payload = {\n    methodPayload: msg.payload,\n    timestamp: Date.now()\n};\nmsg.status = 200;\nreturn msg;",
+  "func": "msg.payload = { echo: msg.payload };\nmsg.status = 200;\nreturn msg;",
   "outputs": 1,
   "noerr": 0,
   "x": 926,
@@ -182,7 +196,7 @@
   "type": "comment",
   "z": "57138478.e2855c",
   "name": "Example: Process Direct Method",
-  "info": "The request includes topic, method, payload, and requestId. Preserve requestId and return the message with status and a JSON-compatible payload within 25 seconds.",
+  "info": "Invoke echo on the Edge device/module identity. This only echoes the request, not a real setting change. Preserve requestId and return the message with status and a native JSON payload within 25 seconds; caller timeout >=30 seconds.",
   "x": 948,
   "y": 595,
   "wires": []
@@ -200,37 +214,18 @@
   "type": "comment",
   "z": "57138478.e2855c",
   "name": "Example: Process message and send to output",
-  "info": "Receive an input message, change its payload, and send it through a configured output node.",
+  "info": "Object payloads gain forwardedAt. Arrays/scalars retain their JSON values; strings are re-encoded as JSON text for Module Output. The README routes send sensor output1 to input1 and forward output2 upstream.",
   "x": 675,
   "y": 410,
   "wires": []
 }, {
   "id": "aae877c8.807d28",
-  "type": "change",
+  "type": "function",
   "z": "57138478.e2855c",
-  "name": "adjust msg",
-  "rules": [{
-    "t": "delete",
-    "p": "payload.timeCreated",
-    "pt": "msg"
-  }, {
-    "t": "set",
-    "p": "payload.timestamp",
-    "pt": "msg",
-    "to": "",
-    "tot": "date"
-  }, {
-    "t": "set",
-    "p": "payload.deviceId",
-    "pt": "msg",
-    "to": "device-02",
-    "tot": "str"
-  }],
-  "action": "",
-  "property": "",
-  "from": "",
-  "to": "",
-  "reg": false,
+  "name": "Prepare output payload",
+  "func": "const payload = msg.payload;\nif (payload !== null && typeof payload === 'object' && !Array.isArray(payload)) {\n    msg.payload = { ...payload, forwardedAt: new Date().toISOString() };\n} else if (typeof payload === 'string') {\n    // Module Output expects JSON text for strings, not raw text.\n    msg.payload = JSON.stringify(payload);\n}\nreturn msg;",
+  "outputs": 1,
+  "noerr": 0,
   "x": 441,
   "y": 462,
   "wires": [["7e4f9e1b.cd666"]]

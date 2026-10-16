@@ -24,6 +24,7 @@ try {
     const entries = readArchive(archivePath);
     const files = new Set(Array.from(entries.keys(), (name) => name.replace(/^package\//, '')));
     const packedManifest = JSON.parse(entries.get('package/package.json'));
+    const exampleFiles = fs.readdirSync(path.join(root, 'examples')).filter((file) => file.endsWith('.json')).sort();
     const required = [
         'LICENSE.md',
         'CHANGELOG.md',
@@ -36,7 +37,7 @@ try {
         'icons/iot-edge-module-logo.svg',
         'docs/dependency-risk.md',
         'docs/release-validation.md',
-        'examples/example.json',
+        ...exampleFiles.map((file) => `examples/${file}`),
         'package.json'
     ];
 
@@ -72,9 +73,11 @@ try {
         devDependencies: { 'node-red': process.env.NODE_RED_TEST_VERSION || require('../package.json').devDependencies['node-red'] }
     }));
     console.log(npm(['install', '--ignore-scripts', '--no-audit', '--no-fund', '--registry=https://registry.npmjs.org/'], { cwd: userDirectory }));
-    console.log(childProcess.execFileSync(process.execPath, [path.join(__dirname, 'fixtures/packed-discovery.js'), userDirectory], {
-        cwd: userDirectory, encoding: 'utf8', timeout: 30000
-    }));
+    for (const file of exampleFiles) {
+        console.log(childProcess.execFileSync(process.execPath, [path.join(__dirname, 'fixtures/packed-discovery.js'), userDirectory, file], {
+            cwd: userDirectory, encoding: 'utf8', timeout: 30000
+        }));
+    }
     let audit;
     try {
         audit = npm(['audit', '--omit=dev', '--json'], { cwd: userDirectory });

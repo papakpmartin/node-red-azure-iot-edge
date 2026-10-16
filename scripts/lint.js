@@ -22,7 +22,10 @@ for (const runtime of Object.values(require('../package.json')['node-red'].nodes
     if (scripts.length === 0) throw new Error(`No editor scripts found in ${editor}`);
     for (const [index, match] of scripts.entries()) new vm.Script(match[1], { filename: `${editor}:${index + 1}` });
 }
-for (const node of require('../examples/example.json')) {
-    if (node.type === 'function') new vm.Script(`(function(msg, node, context, flow, global) {\n${node.func}\n})`, { filename: `examples/example.json:${node.id}` });
+for (const file of fs.readdirSync(path.join(root, 'examples')).filter((file) => file.endsWith('.json'))) {
+    const flow = JSON.parse(fs.readFileSync(path.join(root, 'examples', file), 'utf8'));
+    for (const node of flow) {
+        if (node.type === 'function') new vm.Script(`(function(msg, node, context, flow, global) {\n${node.func}\n})`, { filename: `examples/${file}:${node.id}` });
+    }
 }
 console.log('Runtime, editor, tooling, test, and example JavaScript syntax passed');

@@ -1,0 +1,14 @@
+[
+  { "id": "ex02-tab", "type": "tab", "label": "Azure: 02 Module twin", "info": "Receive desired module properties and manually report module state. No message route is required for twin operations." },
+  { "id": "ex02-intro", "type": "comment", "z": "ex02-tab", "name": "Start here: module twin, not device twin", "info": "Requires Node-RED running as an Edge module with workload identity. Reuse your SINGLE Module Client if another module example is installed; remove unused imported configs before deploying. Inspect initial desired state, then change a desired property on this MODULE twin in IoT Hub and inspect the patch. Press Report module state and verify reported.moduleStatus on that same module twin. No Edge Hub message routes are needed. Complete is SDK update completion, not a downstream action. Debug shows application data; review before production use.", "x": 300, "y": 60, "wires": [] },
+  { "id": "ex02-client", "type": "moduleclient" },
+  { "id": "ex02-report", "type": "inject", "z": "ex02-tab", "name": "Report module state", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "payload": "{\"moduleStatus\":\"running\"}", "payloadType": "json", "topic": "", "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "x": 180, "y": 140, "wires": [["ex02-twin"]] },
+  { "id": "ex02-twin", "type": "moduletwin", "z": "ex02-tab", "client": "ex02-client", "x": 450, "y": 140, "wires": [["ex02-desired-debug"]] },
+  { "id": "ex02-desired-debug", "type": "debug", "z": "ex02-tab", "name": "Desired module state/patch (topic: desired)", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "true", "x": 780, "y": 140, "wires": [] },
+  { "id": "ex02-catch", "type": "catch", "z": "ex02-tab", "name": "Twin error", "scope": ["ex02-twin"], "uncaught": false, "x": 160, "y": 240, "wires": [["ex02-error-debug"]] },
+  { "id": "ex02-error-debug", "type": "debug", "z": "ex02-tab", "name": "Reported update failed: msg.error", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "true", "x": 500, "y": 240, "wires": [] },
+  { "id": "ex02-complete", "type": "complete", "z": "ex02-tab", "name": "Reported update completed", "scope": ["ex02-twin"], "uncaught": false, "x": 210, "y": 300, "wires": [["ex02-complete-debug"]] },
+  { "id": "ex02-complete-debug", "type": "debug", "z": "ex02-tab", "name": "Reported update SDK completion", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "true", "x": 510, "y": 300, "wires": [] },
+  { "id": "ex02-status", "type": "status", "z": "ex02-tab", "name": "Twin status", "scope": ["ex02-twin"], "x": 160, "y": 360, "wires": [["ex02-status-debug"]] },
+  { "id": "ex02-status-debug", "type": "debug", "z": "ex02-tab", "name": "Module twin status", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "status", "x": 470, "y": 360, "wires": [] }
+]

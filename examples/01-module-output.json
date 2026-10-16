@@ -1,0 +1,13 @@
+[
+  { "id": "ex01-tab", "type": "tab", "label": "Azure: 01 Module output", "info": "Manually send JSON on output1. Requires Node-RED running as an IoT Edge module and an Edge Hub route; see the README quick start." },
+  { "id": "ex01-intro", "type": "comment", "z": "ex01-tab", "name": "Start here: Edge workload + output1 route", "info": "Run Node-RED as an IoT Edge module. Merge the README telemetryToHub route into edgeHub.properties.desired.routes, replacing nodeRed with your deployment module ID. Import ONE module example at a time, or reselect your existing single Module Client and remove redundant imported configs before deploying. Wait for Connected, then press Send sample telemetry. Verify the body in an IoT Hub event monitor. Complete means SDK acceptance, NOT downstream processing. Debug messages may contain application data; review before production use.", "x": 300, "y": 60, "wires": [] },
+  { "id": "ex01-client", "type": "moduleclient" },
+  { "id": "ex01-send", "type": "inject", "z": "ex01-tab", "name": "Send sample telemetry", "props": [{ "p": "payload" }, { "p": "topic", "vt": "str" }], "payload": "{\"temperature\":21.5,\"source\":\"node-red\"}", "payloadType": "json", "topic": "", "repeat": "", "crontab": "", "once": false, "onceDelay": 0.1, "x": 180, "y": 140, "wires": [["ex01-output"]] },
+  { "id": "ex01-output", "type": "moduleoutput", "z": "ex01-tab", "client": "ex01-client", "output": "output1", "x": 460, "y": 140, "wires": [] },
+  { "id": "ex01-catch", "type": "catch", "z": "ex01-tab", "name": "Output error", "scope": ["ex01-output"], "uncaught": false, "x": 180, "y": 240, "wires": [["ex01-error-debug"]] },
+  { "id": "ex01-error-debug", "type": "debug", "z": "ex01-tab", "name": "Send failed: inspect msg.error", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "true", "x": 500, "y": 240, "wires": [] },
+  { "id": "ex01-complete", "type": "complete", "z": "ex01-tab", "name": "SDK send completed", "scope": ["ex01-output"], "uncaught": false, "x": 200, "y": 300, "wires": [["ex01-complete-debug"]] },
+  { "id": "ex01-complete-debug", "type": "debug", "z": "ex01-tab", "name": "Accepted, not a delivery receipt", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "true", "x": 510, "y": 300, "wires": [] },
+  { "id": "ex01-status", "type": "status", "z": "ex01-tab", "name": "Output status", "scope": ["ex01-output"], "x": 180, "y": 360, "wires": [["ex01-status-debug"]] },
+  { "id": "ex01-status-debug", "type": "debug", "z": "ex01-tab", "name": "Connection/activity status", "active": true, "tosidebar": true, "console": false, "tostatus": false, "complete": "status", "x": 490, "y": 360, "wires": [] }
+]
