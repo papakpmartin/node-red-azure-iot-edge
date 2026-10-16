@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Add a newcomer-oriented README with connection selection, a routed-message
+  quick start, message contracts, diagnostics, and troubleshooting. Move project
+  history and attribution below the usage documentation.
+- Add five focused, annotated examples for module output, twin, echo method,
+  routed forwarding, and direct X.509 device twin access. Make the combined
+  example self-contained and manual, with scalar-safe JSON forwarding.
+- Check every example's syntax/references and deploy each packed example in
+  isolated Node-RED tests, including Catch/Status/Complete diagnostics.
+- No runtime, dependency, or already-built rc.2 artifact changes.
+
 ## 1.0.0-rc.2
 
 - Restore compatibility with the deployed Node-RED 4.1.13 runtime by lowering the
